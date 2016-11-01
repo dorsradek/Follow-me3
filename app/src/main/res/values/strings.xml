@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Follow-me3</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="drawer_item_menu_drawer">Menu Drawer</string>
+</resources>
