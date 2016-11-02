@@ -7,12 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
 public class TestActivity extends AppCompatActivity {
 
@@ -76,6 +74,10 @@ public class TestActivity extends AppCompatActivity {
                 fragment = new EventsFragment();
                 title = "Events";
                 break;
+            case R.id.menu_3:
+                fragment = MapFragment.newInstance();
+                title = "Map";
+                break;
 
         }
 
@@ -92,4 +94,5 @@ public class TestActivity extends AppCompatActivity {
         result.closeDrawer();
 
     }
+
 }
