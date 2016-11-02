@@ -2,17 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pl.rdors.follow_me3">
 
-    <permission
-        android:name="your.package.name.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="your.package.name.permission.MAPS_RECEIVE"/>
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -31,8 +26,12 @@
             android:glEsVersion="0x00020000"
             android:required="true"/>
 
+        <!--<meta-data-->
+            <!--android:name="com.google.android.maps.v2.API_KEY"-->
+            <!--android:value="AIzaSyA1REipsIwyXrmR6BzG4KXGAm2Cadi5kb8" />-->
+
         <meta-data
-            android:name="com.google.android.maps.v2.API_KEY"
+            android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA1REipsIwyXrmR6BzG4KXGAm2Cadi5kb8" />
 
     </application>

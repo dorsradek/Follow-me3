@@ -1,5 +1,6 @@
 package pl.rdors.follow_me3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -15,6 +16,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 public class TestActivity extends AppCompatActivity {
 
     private Drawer result = null;
+    private Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +63,15 @@ public class TestActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (fragment instanceof IOnActivityResult) {
+            ((IOnActivityResult) fragment).apply(requestCode, resultCode, data);
+        }
+    }
+
     public void displayView(IDrawerItem drawerItem) {
-        Fragment fragment = null;
         String title = getString(R.string.app_name);
 
         switch ((int) drawerItem.getIdentifier()) {
