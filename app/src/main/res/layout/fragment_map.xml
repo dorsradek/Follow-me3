@@ -61,14 +61,15 @@
                 android:paddingLeft="2dp"
                 android:paddingRight="2dp"
                 android:text="@string/location_market_text_hint"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                android:visibility="invisible" />
 
             <ImageView
                 android:id="@+id/imageMarker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/marker_image_hint"
-                android:src="@drawable/add_marker" />
+                android:src="@drawable/map_marker" />
 
         </LinearLayout>
 
