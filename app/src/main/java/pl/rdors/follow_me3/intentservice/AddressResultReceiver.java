@@ -42,7 +42,7 @@ public class AddressResultReceiver extends ResultReceiver {
      * Updates the address in the UI.
      */
     private void displayAddressOutput() {
-        viewElementsManager.getLocationAddress().setVisibility(View.VISIBLE);
+        viewElementsManager.getToolbarContainer().setVisibility(View.VISIBLE);
         viewElementsManager.getLocationMarkerText().setVisibility(View.VISIBLE);
         if (street != null) {
             viewElementsManager.getLocationAddress().setText(street);

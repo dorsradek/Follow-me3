@@ -47,7 +47,7 @@ public class MapManager implements OnMapReadyCallback {
         this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
-                viewElementsManager.getLocationAddress().setVisibility(View.INVISIBLE);
+                viewElementsManager.getToolbarContainer().setVisibility(View.INVISIBLE);
                 viewElementsManager.getLocationMarkerText().setVisibility(View.INVISIBLE);
                 viewElementsManager.getLocationAddress().setText("");
             }

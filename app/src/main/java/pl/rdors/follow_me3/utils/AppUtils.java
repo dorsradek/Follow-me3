@@ -43,7 +43,7 @@ public class AppUtils {
                     context.startActivity(myIntent);
                 }
             });
-            dialog.setNegativeButton(context.getString(R.string.Cancel), new DialogInterface.OnClickListener() {
+            dialog.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                 }

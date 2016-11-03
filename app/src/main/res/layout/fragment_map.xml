@@ -1,58 +1,42 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white"
     android:orientation="vertical">
 
-    <!--<LinearLayout-->
-        <!--android:id="@+id/container_toolbar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="vertical">-->
-
-        <!--<TextView-->
-            <!--android:id="@+id/Address"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginTop="5dp"-->
-            <!--android:ellipsize="end"-->
-            <!--android:text="Click to change location"-->
-            <!--android:textSize="@dimen/font_22" />-->
-    <!--</LinearLayout>-->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <!--android:layout_below="@+id/container_toolbar"-->
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
 
-
-        <fragment
-            xmlns:tools="http://schemas.android.com/tools"
+        <fragment xmlns:tools="http://schemas.android.com/tools"
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:context="pl.rdors.follow_me3.fragment.MapFragment" />
 
-
         <LinearLayout
             android:id="@+id/container_toolbar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/cast_libraries_material_featurehighlight_inner_radius"
-            android:orientation="vertical"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp">
+            android:layout_marginTop="10dp"
+            android:background="@color/cast_expanded_controller_text_color"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/Address"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:ellipsize="end"
-                android:text="Click to change location"
-                android:textSize="@dimen/font_20"
-                android:background="@color/cast_expanded_controller_seek_bar_progress_background_tint_color"
+                android:gravity="center"
                 android:lines="1"
-                android:gravity="center" />
+                android:text="@string/address_hint"
+                android:textSize="@dimen/font_20" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -62,7 +46,8 @@
             android:layout_gravity="center"
             android:layout_marginBottom="30dp"
             android:gravity="center"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <TextView
                 android:id="@+id/locationMarkertext"
@@ -73,29 +58,18 @@
                 android:minWidth="250dp"
                 android:paddingLeft="2dp"
                 android:paddingRight="2dp"
-                android:text=" Set your Location "
+                android:text="@string/location_market_text_hint"
                 android:textColor="@android:color/white" />
 
             <ImageView
                 android:id="@+id/imageMarker"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/marker_image_hint"
                 android:src="@drawable/add_marker" />
+
         </LinearLayout>
-
-
 
     </FrameLayout>
 
-
 </RelativeLayout>
-
-
-
-<!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:id="@+id/map"-->
-    <!--android:name="com.google.android.gms.maps.SupportMapFragment"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--tools:context="pl.rdors.follow_me3.fragment.MapFragment" />-->

@@ -2,6 +2,7 @@ package pl.rdors.follow_me3.view;
 
 import android.content.Intent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +23,7 @@ public class ViewElementsManager {
 
     private TextView locationMarkerText;
     private TextView locationAddress;
-
+    private LinearLayout toolbarContainer;
 
     private TestActivity activity;
 
@@ -30,6 +31,7 @@ public class ViewElementsManager {
         this.activity = activity;
         locationMarkerText = (TextView) view.findViewById(R.id.locationMarkertext);
         locationAddress = (TextView) view.findViewById(R.id.Address);
+        toolbarContainer = (LinearLayout) view.findViewById(R.id.container_toolbar);
 
         locationAddress.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,4 +62,7 @@ public class ViewElementsManager {
         return locationAddress;
     }
 
+    public LinearLayout getToolbarContainer() {
+        return toolbarContainer;
+    }
 }
