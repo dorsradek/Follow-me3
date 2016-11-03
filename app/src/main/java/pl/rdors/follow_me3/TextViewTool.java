@@ -18,8 +18,8 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 public class TextViewTool {
 
     private TextView locationMarkerText;
-    private EditText locationAddress;
-    private TextView locationText;
+    private TextView locationAddress;
+//    private TextView locationText;
 
     public static final int REQUEST_CODE_AUTOCOMPLETE = 1;
 
@@ -28,10 +28,10 @@ public class TextViewTool {
     public TextViewTool(TestActivity activity, View view) {
         this.activity = activity;
         locationMarkerText = (TextView) view.findViewById(R.id.locationMarkertext);
-        locationAddress = (EditText) view.findViewById(R.id.Address);
-        locationText = (TextView) view.findViewById(R.id.Locality);
+        locationAddress = (TextView) view.findViewById(R.id.Address);
+        //locationText = (TextView) view.findViewById(R.id.Locality);
 
-        locationText.setOnClickListener(new View.OnClickListener() {
+        locationAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openAutocompleteActivity();
@@ -65,12 +65,12 @@ public class TextViewTool {
     }
 
 
-    public EditText getLocationAddress() {
+    public TextView getLocationAddress() {
         return locationAddress;
     }
 
 
-    public TextView getLocationText() {
-        return locationText;
-    }
+//    public TextView getLocationText() {
+//        return locationText;
+//    }
 }

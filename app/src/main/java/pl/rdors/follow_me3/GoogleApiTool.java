@@ -19,6 +19,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by rdors on 2016-11-02.
@@ -30,12 +33,12 @@ public class GoogleApiTool implements GoogleApiClient.ConnectionCallbacks, Googl
 
     private GoogleApiClient googleApiClient;
 
-    private Activity activity;
+    private TestActivity activity;
     private MapTool mapTool;
 
     public static String TAG = "MAP LOCATION";
 
-    public GoogleApiTool(final Activity activity, MapTool mapTool) {
+    public GoogleApiTool(final TestActivity activity, MapTool mapTool) {
         this.activity = activity;
         this.mapTool = mapTool;
 
@@ -84,8 +87,6 @@ public class GoogleApiTool implements GoogleApiClient.ConnectionCallbacks, Googl
             if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
                 GooglePlayServicesUtil.getErrorDialog(resultCode, activity,
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                //finish();
             }
             return false;
         }
@@ -109,25 +110,15 @@ public class GoogleApiTool implements GoogleApiClient.ConnectionCallbacks, Googl
         }
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         if (mLastLocation != null) {
-            mapTool.changeMap(mLastLocation);
-            Log.d(TAG, "ON connected");
-
-        } else
-            try {
-                LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        try {
-            LocationRequest mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(10000);
-            mLocationRequest.setFastestInterval(5000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            mapTool.changeLocationOnMap(mLastLocation);
+        } else {
+            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
         }
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
     }
 
 
@@ -153,4 +144,6 @@ public class GoogleApiTool implements GoogleApiClient.ConnectionCallbacks, Googl
 //            e.printStackTrace();
 //        }
     }
+
+
 }

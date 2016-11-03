@@ -13,7 +13,7 @@ public class AppUtils {
 
         public static final int FAILURE_RESULT = 1;
 
-        public static final String PACKAGE_NAME = "com.sample.sishin.maplocation";
+        public static final String PACKAGE_NAME = "pl.rdors.follow_me3";
 
         public static final String RECEIVER = PACKAGE_NAME + ".RECEIVER";
 
