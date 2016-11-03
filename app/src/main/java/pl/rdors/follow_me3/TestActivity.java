@@ -13,6 +13,11 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import pl.rdors.follow_me3.fragment.EventsFragment;
+import pl.rdors.follow_me3.fragment.IOnActivityResult;
+import pl.rdors.follow_me3.fragment.MapFragment;
+import pl.rdors.follow_me3.fragment.NewsFragment;
+
 public class TestActivity extends AppCompatActivity {
 
     private Drawer result = null;

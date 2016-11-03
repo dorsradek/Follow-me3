@@ -1,25 +1,28 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.intentservice;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
 import android.view.View;
 
+import pl.rdors.follow_me3.view.ViewElementsManager;
+import pl.rdors.follow_me3.utils.AppUtils;
+
 /**
  * Receiver for data sent from FetchAddressIntentService.
  */
-class AddressResultReceiver extends ResultReceiver {
+public class AddressResultReceiver extends ResultReceiver {
 
     protected String address;
     protected String area;
     protected String city;
     protected String street;
 
-    private TextViewTool textViewTool;
+    private ViewElementsManager viewElementsManager;
 
-    public AddressResultReceiver(Handler handler, TextViewTool textViewTool) {
+    public AddressResultReceiver(Handler handler, ViewElementsManager viewElementsManager) {
         super(handler);
-        this.textViewTool = textViewTool;
+        this.viewElementsManager = viewElementsManager;
     }
 
     /**
@@ -39,13 +42,10 @@ class AddressResultReceiver extends ResultReceiver {
      * Updates the address in the UI.
      */
     private void displayAddressOutput() {
-        try {
-            textViewTool.getLocationAddress().setVisibility(View.VISIBLE);
-            textViewTool.getLocationMarkerText().setVisibility(View.VISIBLE);
-            if (street != null)
-                textViewTool.getLocationAddress().setText(street);
-        } catch (Exception e) {
-            e.printStackTrace();
+        viewElementsManager.getLocationAddress().setVisibility(View.VISIBLE);
+        viewElementsManager.getLocationMarkerText().setVisibility(View.VISIBLE);
+        if (street != null) {
+            viewElementsManager.getLocationAddress().setText(street);
         }
     }
 

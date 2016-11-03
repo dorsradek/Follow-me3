@@ -31,7 +31,7 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="pl.rdors.follow_me3.MapFragment" />
+            tools:context="pl.rdors.follow_me3.fragment.MapFragment" />
 
 
         <LinearLayout
@@ -98,4 +98,4 @@
     <!--android:name="com.google.android.gms.maps.SupportMapFragment"-->
     <!--android:layout_width="match_parent"-->
     <!--android:layout_height="match_parent"-->
-    <!--tools:context="pl.rdors.follow_me3.MapFragment" />-->
+    <!--tools:context="pl.rdors.follow_me3.fragment.MapFragment" />-->

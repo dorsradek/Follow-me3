@@ -1,14 +1,7 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.google;
 
-import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.util.TimeUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -18,38 +11,35 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
+import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.utils.AppUtils;
+import pl.rdors.follow_me3.view.ViewElementsManager;
 
 /**
  * Created by rdors on 2016-11-02.
  */
 
-public class MapTool implements OnMapReadyCallback {
+public class MapManager implements OnMapReadyCallback {
 
     private LatLng latLngCenter;
     private GoogleMap googleMap;
 
     private TestActivity activity;
     private IntentServiceTool intentServiceTool;
-    private TextViewTool textViewTool;
+    private ViewElementsManager viewElementsManager;
 
-    public static String TAG = "MAP LOCATION";
-
-    public MapTool(TestActivity activity, IntentServiceTool intentServiceTool, TextViewTool textViewTool) {
+    public MapManager(TestActivity activity, IntentServiceTool intentServiceTool, ViewElementsManager viewElementsManager) {
         this.activity = activity;
         this.intentServiceTool = intentServiceTool;
-        this.textViewTool = textViewTool;
+        this.viewElementsManager = viewElementsManager;
     }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        PermissionTool.checkLocationPermission(activity);
+        AppUtils.checkLocationPermission(activity);
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         googleMap.getUiSettings().setCompassEnabled(false);
@@ -57,19 +47,17 @@ public class MapTool implements OnMapReadyCallback {
         this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
-                textViewTool.getLocationAddress().setVisibility(View.INVISIBLE);
-                textViewTool.getLocationAddress().setText("");
-                textViewTool.getLocationMarkerText().setVisibility(View.INVISIBLE);
+                viewElementsManager.getLocationAddress().setVisibility(View.INVISIBLE);
+                viewElementsManager.getLocationMarkerText().setVisibility(View.INVISIBLE);
+                viewElementsManager.getLocationAddress().setText("");
             }
         });
 
         this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override
             public void onCameraMove() {
-
             }
         });
-
 
         this.googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
@@ -83,7 +71,6 @@ public class MapTool implements OnMapReadyCallback {
     @NonNull
     private Location createLocation(CameraPosition cameraPosition) {
         latLngCenter = cameraPosition.target;
-
         Location location = new Location("");
         location.setLatitude(latLngCenter.latitude);
         location.setLongitude(latLngCenter.longitude);
@@ -100,9 +87,7 @@ public class MapTool implements OnMapReadyCallback {
 
             intentServiceTool.startIntentService(location);
         } else {
-            Toast.makeText(activity.getApplicationContext(),
-                    "Sorry! unable to create maps", Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(activity, "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
         }
 
     }

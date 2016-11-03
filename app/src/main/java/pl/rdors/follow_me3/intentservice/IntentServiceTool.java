@@ -1,7 +1,12 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.intentservice;
 
 import android.content.Intent;
 import android.location.Location;
+
+import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
+import pl.rdors.follow_me3.intentservice.FetchAddressIntentService;
+import pl.rdors.follow_me3.utils.AppUtils;
 
 /**
  * Created by rdors on 2016-11-02.

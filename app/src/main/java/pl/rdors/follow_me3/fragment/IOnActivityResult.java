@@ -1,4 +1,4 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.fragment;
 
 import android.content.Intent;
 

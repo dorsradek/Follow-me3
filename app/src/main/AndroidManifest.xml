@@ -35,7 +35,7 @@
             android:value="AIzaSyA1REipsIwyXrmR6BzG4KXGAm2Cadi5kb8" />
 
         <service
-            android:name=".FetchAddressIntentService"
+            android:name=".intentservice.FetchAddressIntentService"
             android:exported="false" />
 
     </application>

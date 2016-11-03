@@ -1,21 +1,15 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,14 +17,22 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import static android.app.Activity.RESULT_CANCELED;
+import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
+import pl.rdors.follow_me3.utils.AppUtils;
+import pl.rdors.follow_me3.google.GoogleApiTool;
+import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.google.MapManager;
+import pl.rdors.follow_me3.R;
+import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.view.ViewElementsManager;
+
 import static android.app.Activity.RESULT_OK;
 
 public class MapFragment extends Fragment implements IOnActivityResult {
 
     private TestActivity activity;
-    private TextViewTool textViewTool;
-    private MapTool mapTool;
+    private ViewElementsManager viewElementsManager;
+    private MapManager mapManager;
     private IntentServiceTool intentServiceTool;
     private AddressResultReceiver addressResultReceiver;
     private GoogleApiTool googleApiTool;
@@ -47,13 +49,13 @@ public class MapFragment extends Fragment implements IOnActivityResult {
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
 
-        textViewTool = new TextViewTool(activity, view);
-        addressResultReceiver = new AddressResultReceiver(new Handler(), textViewTool);
+        viewElementsManager = new ViewElementsManager(activity, view);
+        addressResultReceiver = new AddressResultReceiver(new Handler(), viewElementsManager);
         intentServiceTool = new IntentServiceTool(addressResultReceiver, activity);
-        mapTool = new MapTool(activity, intentServiceTool, textViewTool);
-        googleApiTool = new GoogleApiTool(activity, mapTool);
+        mapManager = new MapManager(activity, intentServiceTool, viewElementsManager);
+        googleApiTool = new GoogleApiTool(activity, mapManager);
 
-        mapFragment.getMapAsync(mapTool);
+        mapFragment.getMapAsync(mapManager);
 
         return view;
     }
@@ -74,7 +76,6 @@ public class MapFragment extends Fragment implements IOnActivityResult {
         super.onStart();
         try {
             googleApiTool.getGoogleApiClient().connect();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,27 +97,17 @@ public class MapFragment extends Fragment implements IOnActivityResult {
 
     @Override
     public void apply(int requestCode, int resultCode, Intent data) {
-// Check that the result was from the autocomplete widget.
-        if (requestCode == TextViewTool.REQUEST_CODE_AUTOCOMPLETE) {
+        if (requestCode == AppUtils.LocationConstants.REQUEST_CODE_AUTOCOMPLETE) {
             if (resultCode == RESULT_OK) {
-                // Get the user's selected place from the Intent.
                 Place place = PlaceAutocomplete.getPlace(activity, data);
-
                 LatLng latLong = place.getLatLng();
-
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(latLong).zoom(19f).tilt(70).build();
+                AppUtils.checkLocationPermission(activity);
 
-                PermissionTool.checkLocationPermission(activity);
-
-                mapTool.getGoogleMap().setMyLocationEnabled(true);
-                mapTool.getGoogleMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                mapManager.getGoogleMap().setMyLocationEnabled(true);
+                mapManager.getGoogleMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
-        } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-            Status status = PlaceAutocomplete.getStatus(activity, data);
-        } else if (resultCode == RESULT_CANCELED) {
-            // Indicates that the activity closed before a selection was made. For example if
-            // the user pressed the back button.
         }
     }
 
