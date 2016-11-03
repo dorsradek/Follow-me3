@@ -1,7 +1,10 @@
 package pl.rdors.follow_me3.google;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Toast;
 
@@ -39,17 +42,22 @@ public class MapManager implements OnMapReadyCallback {
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        AppUtils.checkLocationPermission(activity);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            AppUtils.requestLocationPermission(activity);
+            return;
+        }
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(false);
         googleMap.getUiSettings().setCompassEnabled(false);
+        googleMap.getUiSettings().setRotateGesturesEnabled(false);
+        googleMap.getUiSettings().setTiltGesturesEnabled(false);
 
         this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
-                viewElementsManager.getToolbarContainer().setVisibility(View.INVISIBLE);
-                viewElementsManager.getLocationMarkerText().setVisibility(View.INVISIBLE);
-                viewElementsManager.getLocationAddress().setText("");
+                viewElementsManager.animateWhenMapMoveStarted();
+                viewElementsManager.handleLocation("");
             }
         });
 
@@ -64,6 +72,7 @@ public class MapManager implements OnMapReadyCallback {
             public void onCameraIdle() {
                 Location location = createLocation(googleMap.getCameraPosition());
                 intentServiceTool.startIntentService(location);
+                viewElementsManager.animateWhenMapIdle();
             }
         });
     }
@@ -81,7 +90,7 @@ public class MapManager implements OnMapReadyCallback {
 
         if (googleMap != null) {
             latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(15f).tilt(70).build();
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(17f).build();
 
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 

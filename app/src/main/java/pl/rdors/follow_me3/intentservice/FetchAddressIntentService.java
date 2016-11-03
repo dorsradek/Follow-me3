@@ -87,17 +87,14 @@ public class FetchAddressIntentService extends IntentService {
      * Sends a resultCode and message to the receiver.
      */
     private void deliverResultToReceiver(int resultCode, String message, Address address) {
-        try {
-            Bundle bundle = new Bundle();
-            bundle.putString(AppUtils.LocationConstants.RESULT_DATA_KEY, message);
+        Bundle bundle = new Bundle();
+        bundle.putString(AppUtils.LocationConstants.RESULT_DATA_KEY, message);
+        if (address != null) {
             bundle.putString(AppUtils.LocationConstants.LOCATION_DATA_AREA, address.getSubLocality());
             bundle.putString(AppUtils.LocationConstants.LOCATION_DATA_CITY, address.getLocality());
             bundle.putString(AppUtils.LocationConstants.LOCATION_DATA_STREET, address.getAddressLine(0));
-
-            mReceiver.send(resultCode, bundle);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        mReceiver.send(resultCode, bundle);
     }
 
 

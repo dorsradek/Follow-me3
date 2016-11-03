@@ -13,6 +13,8 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import pl.rdors.follow_me3.fragment.AbleToEnable;
+import pl.rdors.follow_me3.fragment.BackPressable;
 import pl.rdors.follow_me3.fragment.EventsFragment;
 import pl.rdors.follow_me3.fragment.IOnActivityResult;
 import pl.rdors.follow_me3.fragment.MapFragment;
@@ -60,9 +62,14 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        //handle the back press :D close the drawer first and if the drawer is closed close the activity
         if (result != null && result.isDrawerOpen()) {
             result.closeDrawer();
+        } else if (fragment instanceof BackPressable) {
+            if (((BackPressable) fragment).allowBackPress()) {
+                super.onBackPressed();
+            } else {
+                ((BackPressable) fragment).backPress();
+            }
         } else {
             super.onBackPressed();
         }
@@ -73,6 +80,12 @@ public class TestActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (fragment instanceof IOnActivityResult) {
             ((IOnActivityResult) fragment).apply(requestCode, resultCode, data);
+        }
+    }
+
+    public void enableFragment(boolean enable) {
+        if (fragment instanceof AbleToEnable) {
+            ((AbleToEnable) fragment).enable(enable);
         }
     }
 

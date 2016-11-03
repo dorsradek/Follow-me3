@@ -1,10 +1,13 @@
 package pl.rdors.follow_me3.fragment;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,18 +20,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
-import pl.rdors.follow_me3.utils.AppUtils;
-import pl.rdors.follow_me3.google.GoogleApiTool;
-import pl.rdors.follow_me3.intentservice.IntentServiceTool;
-import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.google.GoogleApiTool;
+import pl.rdors.follow_me3.google.MapManager;
+import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
+import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElementsManager;
 
 import static android.app.Activity.RESULT_OK;
 
-public class MapFragment extends Fragment implements IOnActivityResult {
+public class MapFragment extends Fragment implements IOnActivityResult, BackPressable, AbleToEnable {
 
     private TestActivity activity;
     private ViewElementsManager viewElementsManager;
@@ -101,14 +104,37 @@ public class MapFragment extends Fragment implements IOnActivityResult {
             if (resultCode == RESULT_OK) {
                 Place place = PlaceAutocomplete.getPlace(activity, data);
                 LatLng latLong = place.getLatLng();
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(latLong).zoom(19f).tilt(70).build();
-                AppUtils.checkLocationPermission(activity);
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(latLong).zoom(17f).build();
 
+                if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    AppUtils.requestLocationPermission(activity);
+                    return;
+                }
                 mapManager.getGoogleMap().setMyLocationEnabled(true);
                 mapManager.getGoogleMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         }
     }
 
+    @Override
+    public boolean allowBackPress() {
+        return !viewElementsManager.isNewMeetingContainerVisible();
+    }
+
+    @Override
+    public void backPress() {
+        viewElementsManager.animateWhenNewMeetingHide();
+    }
+
+    public MapManager getMapManager() {
+        return mapManager;
+    }
+
+    @Override
+    public void enable(boolean enable) {
+        mapManager.getGoogleMap().getUiSettings().setScrollGesturesEnabled(enable);
+        mapManager.getGoogleMap().getUiSettings().setIndoorLevelPickerEnabled(enable);
+        mapManager.getGoogleMap().getUiSettings().setZoomGesturesEnabled(enable);
+    }
 }

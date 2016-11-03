@@ -3,12 +3,12 @@ package pl.rdors.follow_me3.utils;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 
 import pl.rdors.follow_me3.R;
 
@@ -52,20 +52,31 @@ public class AppUtils {
         }
     }
 
-    public static void checkLocationPermission(AppCompatActivity activity) {
-        if (!hasLocationPermission(activity)) {
-            ActivityCompat.requestPermissions(activity, new String[]{
-                            android.Manifest.permission.ACCESS_FINE_LOCATION,
-                            android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    2);
-            return;
-        }
+    public static void requestLocationPermission(AppCompatActivity activity) {
+        ActivityCompat.requestPermissions(activity, new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                2);
     }
 
-    public static boolean hasLocationPermission(Context context) {
-        return ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    public static float getHeightPx(AppCompatActivity activity) {
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        return displayMetrics.heightPixels;
     }
 
+    public static float getWidthPx(AppCompatActivity activity) {
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        return displayMetrics.widthPixels;
+    }
+
+    public static float getHeightDp(AppCompatActivity activity) {
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        return displayMetrics.heightPixels / displayMetrics.density;
+    }
+
+    public static float getWidthDp(AppCompatActivity activity) {
+        DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+        return displayMetrics.widthPixels / displayMetrics.density;
+    }
 
 }

@@ -13,10 +13,10 @@ import pl.rdors.follow_me3.utils.AppUtils;
  */
 public class AddressResultReceiver extends ResultReceiver {
 
-    protected String address;
-    protected String area;
-    protected String city;
-    protected String street;
+    private String address;
+    private String area;
+    private String city;
+    private String street;
 
     private ViewElementsManager viewElementsManager;
 
@@ -42,11 +42,7 @@ public class AddressResultReceiver extends ResultReceiver {
      * Updates the address in the UI.
      */
     private void displayAddressOutput() {
-        viewElementsManager.getToolbarContainer().setVisibility(View.VISIBLE);
-        viewElementsManager.getLocationMarkerText().setVisibility(View.VISIBLE);
-        if (street != null) {
-            viewElementsManager.getLocationAddress().setText(street);
-        }
+        viewElementsManager.handleLocation(street);
     }
 
 }
