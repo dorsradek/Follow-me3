@@ -1,10 +1,9 @@
 package pl.rdors.follow_me3.view;
 
 import android.content.Intent;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -14,7 +13,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.maps.SupportMapFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,6 @@ import java.util.List;
 import pl.rdors.follow_me3.MyCustomAdapter;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
-import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.model.User;
 import pl.rdors.follow_me3.utils.AppUtils;
 
@@ -32,30 +29,45 @@ import pl.rdors.follow_me3.utils.AppUtils;
 
 public class ViewElementsManager {
 
-    private static final int ANIMATION_TIME = 500;
+    public static final int ANIMATION_TIME = 500;
 
-    private TextView locationMarkerText;
-    private TextView locationAddress;
-    private Button buttonNewMeeting;
-    private LinearLayout toolbarContainer;
-    private LinearLayout newMeetingContainer;
-    private ListView meetingContactsListView;
+    public TextView locationMarkerText;
+    public TextView locationAddress;
+    public ImageButton buttonNewMeeting;
+    public ImageButton buttonCheckMark;
+    public LinearLayout toolbarContainer;
+    public LinearLayout newMeetingContainer;
+    public LinearLayout locationMarkerContainer;
+    public ListView meetingContactsListView;
 
     private TestActivity activity;
+    public IMapMovable mapMovable;
+
+    private State state = State.MAP;
+
+    enum State {
+        MAP, NEW_MEETING_MAP, NEW_MEETING_CONTAINER
+    }
 
     public ViewElementsManager(TestActivity activity, View view) {
         this.activity = activity;
         locationMarkerText = (TextView) view.findViewById(R.id.locationMarkertext);
         locationAddress = (TextView) view.findViewById(R.id.Address);
 
-        buttonNewMeeting = (Button) view.findViewById(R.id.button_new_meeting);
+        buttonNewMeeting = (ImageButton) view.findViewById(R.id.button_new_meeting);
         buttonNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
+
+        buttonCheckMark = (ImageButton) view.findViewById(R.id.button_check_mark);
+        buttonCheckMark.setTranslationY(AppUtils.getHeightPx(activity));
 
         toolbarContainer = (LinearLayout) view.findViewById(R.id.container_toolbar);
         toolbarContainer.setTranslationY(-AppUtils.getHeightPx(activity));
 
         newMeetingContainer = (LinearLayout) view.findViewById(R.id.container_new_meeting);
         newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
+
+        locationMarkerContainer = (LinearLayout) view.findViewById(R.id.container_location_marker);
+        locationMarkerContainer.setVisibility(View.INVISIBLE);
 
         meetingContactsListView = (ListView) view.findViewById(R.id.list_meeting_contacts);
         displayListView();
@@ -67,13 +79,23 @@ public class ViewElementsManager {
             }
         });
 
+        buttonCheckMark.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                animateButtonCheckMark();
+            }
+        });
+
         buttonNewMeeting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                animateWhenNewMeetingShow();
+                animateButtonNewMeeting();
             }
         });
+
+        mapMovable = new MapMove(this);
     }
+
 
     private void openAutocompleteActivity() {
         try {
@@ -88,43 +110,34 @@ public class ViewElementsManager {
         }
     }
 
-    public void animateWhenMapMoveStarted() {
-        toolbarContainer.animate()
-                .translationY(-toolbarContainer.getHeight() - 20)
-                .alpha(0.0f)
-                .setDuration(ANIMATION_TIME);
-        toolbarContainer.setVisibility(View.INVISIBLE);
-
-        buttonNewMeeting.animate()
-                .translationY(buttonNewMeeting.getHeight() + 20)
-                .alpha(0.0f)
-                .setDuration(ANIMATION_TIME);
-        buttonNewMeeting.setVisibility(View.INVISIBLE);
-    }
-
-    public void animateWhenMapIdle() {
-        if (!isNewMeetingContainerVisible()) {
-            buttonNewMeeting.setVisibility(View.VISIBLE);
-            buttonNewMeeting.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(ANIMATION_TIME);
-
-            toolbarContainer.setVisibility(View.VISIBLE);
-            toolbarContainer.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(ANIMATION_TIME);
-        }
-    }
-
-    public void animateWhenNewMeetingShow() {
+    private void animateButtonNewMeeting() {
+        //hide
         buttonNewMeeting.animate()
                 .translationY(buttonNewMeeting.getHeight() + 20)
                 .alpha(0.0f)
                 .setDuration(ANIMATION_TIME);
         buttonNewMeeting.setVisibility(View.INVISIBLE);
 
+        //show
+        buttonCheckMark.setVisibility(View.VISIBLE);
+        buttonCheckMark.animate()
+                .translationY(0)
+                .alpha(1.0f)
+                .setDuration(ANIMATION_TIME);
+        state = State.NEW_MEETING_MAP;
+        mapMovable = new MeetingMapMove(this);
+        locationMarkerContainer.setVisibility(View.VISIBLE);
+    }
+
+    public void animateButtonCheckMark() {
+        //hide
+        buttonCheckMark.animate()
+                .translationY(buttonCheckMark.getHeight() + 20)
+                .alpha(0.0f)
+                .setDuration(ANIMATION_TIME);
+        buttonCheckMark.setVisibility(View.INVISIBLE);
+
+        //show
         newMeetingContainer.setVisibility(View.VISIBLE);
         newMeetingContainer.animate()
                 .translationY(0)
@@ -133,6 +146,9 @@ public class ViewElementsManager {
 
         toolbarContainer.setEnabled(false);
         activity.enableFragment(false);
+        state = State.NEW_MEETING_CONTAINER;
+        mapMovable = new MeetingContainerMapMove(this);
+        locationMarkerContainer.setVisibility(View.INVISIBLE);
     }
 
     public void animateWhenNewMeetingHide() {
@@ -147,9 +163,11 @@ public class ViewElementsManager {
                 .alpha(0.0f)
                 .setDuration(ANIMATION_TIME);
         newMeetingContainer.setVisibility(View.INVISIBLE);
+        locationMarkerContainer.setVisibility(View.INVISIBLE);
 
         toolbarContainer.setEnabled(true);
         activity.enableFragment(true);
+        state = State.MAP;
     }
 
     public void handleLocation(String location) {

@@ -56,7 +56,7 @@ public class MapManager implements OnMapReadyCallback {
         this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
-                viewElementsManager.animateWhenMapMoveStarted();
+                viewElementsManager.mapMovable.animateWhenMapMoveStarted();
                 viewElementsManager.handleLocation("");
             }
         });
@@ -72,7 +72,7 @@ public class MapManager implements OnMapReadyCallback {
             public void onCameraIdle() {
                 Location location = createLocation(googleMap.getCameraPosition());
                 intentServiceTool.startIntentService(location);
-                viewElementsManager.animateWhenMapIdle();
+                viewElementsManager.mapMovable.animateWhenMapIdle();
             }
         });
     }
