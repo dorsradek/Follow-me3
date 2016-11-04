@@ -25,9 +25,17 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
             android:background="@android:color/white"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_height="40dp"
             android:visibility="invisible">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                map:srcCompat="@drawable/places_ic_search"
+                android:id="@+id/imageView"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp" />
 
             <TextView
                 android:id="@+id/Address"
@@ -83,7 +91,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:visibility="invisible" />
+            android:visibility="visible" />
 
         <LinearLayout
             android:orientation="vertical"
