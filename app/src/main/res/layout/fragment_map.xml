@@ -75,9 +75,9 @@
             <ImageView
                 android:id="@+id/imageMarker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:contentDescription="@string/marker_image_hint"
-                android:src="@drawable/map_marker" />
+                android:src="@drawable/ic_map_marker" />
 
         </LinearLayout>
 
