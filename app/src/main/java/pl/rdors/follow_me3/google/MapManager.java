@@ -13,7 +13,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import pl.rdors.follow_me3.Map;
+import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
 import pl.rdors.follow_me3.utils.AppUtils;

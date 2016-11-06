@@ -1,12 +1,11 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.state.map;
 
 import android.view.View;
-import android.widget.TextView;
 
+import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.state.IApplicationState;
 import pl.rdors.follow_me3.utils.AppUtils;
-import pl.rdors.follow_me3.view.IMapMovable;
 import pl.rdors.follow_me3.view.ViewElements;
-import pl.rdors.follow_me3.view.ViewElementsManager;
 
 import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
 
@@ -14,14 +13,10 @@ import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
  * Created by rdors on 2016-11-06.
  */
 
-public class Map implements ApplicationState {
-
-    private TestActivity activity;
-    private ViewElements viewElements;
+public class Map extends MapState implements IApplicationState {
 
     public Map(TestActivity activity, ViewElements viewElements) {
-        this.activity = activity;
-        this.viewElements = viewElements;
+        super(activity, viewElements);
     }
 
     @Override
@@ -45,6 +40,7 @@ public class Map implements ApplicationState {
         viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
 
         viewElements.toolbarContainer.setEnabled(true);
+
         activity.enableFragment(true);
     }
 
@@ -77,4 +73,15 @@ public class Map implements ApplicationState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
     }
+
+    @Override
+    public boolean canBack() {
+        return false;
+    }
+
+    @Override
+    public void back() {
+
+    }
+
 }

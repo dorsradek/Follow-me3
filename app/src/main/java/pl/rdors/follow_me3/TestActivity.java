@@ -14,25 +14,18 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import pl.rdors.follow_me3.fragment.AbleToEnable;
-import pl.rdors.follow_me3.fragment.BackPressable;
+import pl.rdors.follow_me3.state.IBackPressable;
 import pl.rdors.follow_me3.fragment.EventsFragment;
 import pl.rdors.follow_me3.fragment.IOnActivityResult;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.fragment.NewsFragment;
+import pl.rdors.follow_me3.state.IApplicationState;
 
 public class TestActivity extends AppCompatActivity {
 
     private Drawer result = null;
     private Fragment fragment;
-    private ApplicationState applicationState;
-
-    public ApplicationState getApplicationState() {
-        return applicationState;
-    }
-
-    public void setApplicationState(ApplicationState applicationState) {
-        this.applicationState = applicationState;
-    }
+    private IApplicationState applicationState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +65,8 @@ public class TestActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (result != null && result.isDrawerOpen()) {
             result.closeDrawer();
-        } else if (fragment instanceof BackPressable) {
-            if (((BackPressable) fragment).allowBackPress()) {
-                super.onBackPressed();
-            } else {
-                ((BackPressable) fragment).backPress();
-            }
+        } else if (applicationState.canBack()) {
+            applicationState.back();
         } else {
             super.onBackPressed();
         }
@@ -128,6 +117,14 @@ public class TestActivity extends AppCompatActivity {
         }
         result.closeDrawer();
 
+    }
+
+    public IApplicationState getApplicationState() {
+        return applicationState;
+    }
+
+    public void setApplicationState(IApplicationState applicationState) {
+        this.applicationState = applicationState;
     }
 
 }

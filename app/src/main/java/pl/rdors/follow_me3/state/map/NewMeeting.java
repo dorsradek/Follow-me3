@@ -1,8 +1,9 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.state.map;
 
 import android.view.View;
 
-import pl.rdors.follow_me3.view.IMapMovable;
+import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.state.IApplicationState;
 import pl.rdors.follow_me3.view.ViewElements;
 
 import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
@@ -11,14 +12,10 @@ import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
  * Created by rdors on 2016-11-06.
  */
 
-public class NewMeeting implements ApplicationState {
-
-    private TestActivity activity;
-    private ViewElements viewElements;
+public class NewMeeting extends MapState implements IApplicationState {
 
     public NewMeeting(TestActivity activity, ViewElements viewElements) {
-        this.activity = activity;
-        this.viewElements = viewElements;
+        super(activity, viewElements);
     }
 
     @Override
@@ -38,9 +35,7 @@ public class NewMeeting implements ApplicationState {
                 .setDuration(ANIMATION_TIME);
 
         viewElements.toolbarContainer.setEnabled(false);
-//        activity.enableFragment(false);
-//        state = ViewElementsManager.State.NEW_MEETING_CONTAINER;
-//        mapMovable = new MeetingContainerMapMove(this);
+        activity.enableFragment(false);
         viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
     }
 
@@ -52,6 +47,17 @@ public class NewMeeting implements ApplicationState {
     @Override
     public void animateWhenMapIdle() {
 
+    }
+
+    @Override
+    public boolean canBack() {
+        return true;
+    }
+
+    @Override
+    public void back() {
+        activity.setApplicationState(new MeetingMap(activity, viewElements));
+        activity.getApplicationState().init();
     }
 
 }

@@ -13,10 +13,10 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.rdors.follow_me3.Map;
-import pl.rdors.follow_me3.MeetingMap;
+import pl.rdors.follow_me3.state.map.Map;
+import pl.rdors.follow_me3.state.map.MeetingMap;
 import pl.rdors.follow_me3.MyCustomAdapter;
-import pl.rdors.follow_me3.NewMeeting;
+import pl.rdors.follow_me3.state.map.NewMeeting;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.model.User;

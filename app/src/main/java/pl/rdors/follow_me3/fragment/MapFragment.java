@@ -20,20 +20,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
-import pl.rdors.follow_me3.LaunchingMap;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.google.GoogleApiTool;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.state.map.LaunchingMap;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 import pl.rdors.follow_me3.view.ViewElementsManager;
 
 import static android.app.Activity.RESULT_OK;
 
-public class MapFragment extends Fragment implements IOnActivityResult, BackPressable, AbleToEnable {
+public class MapFragment extends Fragment implements IOnActivityResult, AbleToEnable {
 
     private TestActivity activity;
     private ViewElementsManager viewElementsManager;
@@ -121,20 +121,6 @@ public class MapFragment extends Fragment implements IOnActivityResult, BackPres
                 mapManager.getGoogleMap().animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         }
-    }
-
-    @Override
-    public boolean allowBackPress() {
-        return !viewElementsManager.isNewMeetingContainerVisible();
-    }
-
-    @Override
-    public void backPress() {
-        viewElementsManager.animateWhenNewMeetingHide();
-    }
-
-    public MapManager getMapManager() {
-        return mapManager;
     }
 
     @Override

@@ -1,7 +1,9 @@
-package pl.rdors.follow_me3;
+package pl.rdors.follow_me3.state.map;
 
 import android.view.View;
 
+import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.state.IApplicationState;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
@@ -9,14 +11,10 @@ import pl.rdors.follow_me3.view.ViewElements;
  * Created by rdors on 2016-11-06.
  */
 
-public class LaunchingMap implements ApplicationState {
-
-    private TestActivity activity;
-    private ViewElements viewElements;
+public class LaunchingMap extends MapState implements IApplicationState {
 
     public LaunchingMap(TestActivity activity, ViewElements viewElements) {
-        this.activity = activity;
-        this.viewElements = viewElements;
+        super(activity, viewElements);
     }
 
     @Override
@@ -40,4 +38,15 @@ public class LaunchingMap implements ApplicationState {
     @Override
     public void animateWhenMapIdle() {
     }
+
+    @Override
+    public boolean canBack() {
+        return false;
+    }
+
+    @Override
+    public void back() {
+
+    }
+
 }
