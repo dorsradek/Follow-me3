@@ -4,6 +4,7 @@ import android.view.View;
 
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.state.IApplicationState;
+import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
 import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
@@ -20,6 +21,13 @@ public class MeetingMap extends MapState implements IApplicationState {
 
     @Override
     public void init() {
+        viewElements.buttonCheckMark.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
+        viewElements.toolbarContainer.setTranslationY(-AppUtils.getHeightPx(activity));
+        viewElements.toolbarContainer.setVisibility(View.INVISIBLE);
+        viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
+
         //hide
         viewElements.buttonNewMeeting.animate()
                 .translationY(viewElements.buttonNewMeeting.getHeight() + 20)
@@ -34,6 +42,15 @@ public class MeetingMap extends MapState implements IApplicationState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
 
+        //show
+        viewElements.toolbarContainer.setVisibility(View.VISIBLE);
+        viewElements.toolbarContainer.setEnabled(true);
+        viewElements.toolbarContainer.animate()
+                .translationY(0)
+                .alpha(1.0f)
+                .setDuration(ANIMATION_TIME);
+
+        //show
         viewElements.locationMarkerContainer.setTranslationY(0);
         viewElements.locationMarkerContainer.setVisibility(View.VISIBLE);
         viewElements.buttonCheckMark.animate()
