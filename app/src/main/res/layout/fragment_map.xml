@@ -91,8 +91,8 @@
             android:background="@android:color/transparent"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginRight="10dp" />
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="20dp" />
 
         <ImageButton
             android:id="@+id/button_new_meeting"
@@ -103,8 +103,8 @@
             map:srcCompat="@drawable/ic_plus"
             android:layout_gravity="bottom|right"
             android:background="@android:color/transparent"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="20dp"
             android:visibility="visible" />
 
         <LinearLayout

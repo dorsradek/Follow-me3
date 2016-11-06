@@ -20,6 +20,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import pl.rdors.follow_me3.LaunchingMap;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.google.GoogleApiTool;
@@ -27,6 +28,7 @@ import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
 import pl.rdors.follow_me3.utils.AppUtils;
+import pl.rdors.follow_me3.view.ViewElements;
 import pl.rdors.follow_me3.view.ViewElementsManager;
 
 import static android.app.Activity.RESULT_OK;
@@ -52,11 +54,15 @@ public class MapFragment extends Fragment implements IOnActivityResult, BackPres
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
 
-        viewElementsManager = new ViewElementsManager(activity, view);
+        ViewElements viewElements = new ViewElements(view);
+        viewElementsManager = new ViewElementsManager(activity, viewElements);
         addressResultReceiver = new AddressResultReceiver(new Handler(), viewElementsManager);
         intentServiceTool = new IntentServiceTool(addressResultReceiver, activity);
-        mapManager = new MapManager(activity, intentServiceTool, viewElementsManager);
+        mapManager = new MapManager(activity, intentServiceTool, viewElementsManager, viewElements);
         googleApiTool = new GoogleApiTool(activity, mapManager);
+
+        activity.setApplicationState(new LaunchingMap(activity, viewElements));
+        activity.getApplicationState().init();
 
         mapFragment.getMapAsync(mapManager);
 

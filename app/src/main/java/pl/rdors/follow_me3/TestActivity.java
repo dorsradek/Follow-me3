@@ -24,6 +24,15 @@ public class TestActivity extends AppCompatActivity {
 
     private Drawer result = null;
     private Fragment fragment;
+    private ApplicationState applicationState;
+
+    public ApplicationState getApplicationState() {
+        return applicationState;
+    }
+
+    public void setApplicationState(ApplicationState applicationState) {
+        this.applicationState = applicationState;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +57,6 @@ public class TestActivity extends AppCompatActivity {
                         return false;
                     }
                 }).build();
-
     }
 
     @Override

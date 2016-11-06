@@ -1,0 +1,11 @@
+package pl.rdors.follow_me3;
+
+/**
+ * Created by rdors on 2016-11-07.
+ */
+
+public interface ViewInitializable {
+
+    void init();
+
+}

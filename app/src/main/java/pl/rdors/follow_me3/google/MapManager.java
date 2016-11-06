@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -14,9 +13,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import pl.rdors.follow_me3.Map;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
 import pl.rdors.follow_me3.utils.AppUtils;
+import pl.rdors.follow_me3.view.ViewElements;
 import pl.rdors.follow_me3.view.ViewElementsManager;
 
 /**
@@ -31,16 +32,21 @@ public class MapManager implements OnMapReadyCallback {
     private TestActivity activity;
     private IntentServiceTool intentServiceTool;
     private ViewElementsManager viewElementsManager;
+    private ViewElements viewElements;
 
-    public MapManager(TestActivity activity, IntentServiceTool intentServiceTool, ViewElementsManager viewElementsManager) {
+    public MapManager(TestActivity activity, IntentServiceTool intentServiceTool, ViewElementsManager viewElementsManager, ViewElements viewElements) {
         this.activity = activity;
         this.intentServiceTool = intentServiceTool;
         this.viewElementsManager = viewElementsManager;
+        this.viewElements = viewElements;
     }
 
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
+
+        activity.setApplicationState(new Map(activity, viewElements));
+        activity.getApplicationState().init();
 
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -56,7 +62,7 @@ public class MapManager implements OnMapReadyCallback {
         this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
-                viewElementsManager.mapMovable.animateWhenMapMoveStarted();
+                activity.getApplicationState().animateWhenMapMoveStarted();
                 viewElementsManager.handleLocation("");
             }
         });
@@ -72,7 +78,7 @@ public class MapManager implements OnMapReadyCallback {
             public void onCameraIdle() {
                 Location location = createLocation(googleMap.getCameraPosition());
                 intentServiceTool.startIntentService(location);
-                viewElementsManager.mapMovable.animateWhenMapIdle();
+                activity.getApplicationState().animateWhenMapIdle();
             }
         });
     }
