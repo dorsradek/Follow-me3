@@ -22,9 +22,14 @@ public class Map extends MapState implements IApplicationState {
     @Override
     public void init() {
         viewElements.buttonNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.buttonNewMeeting.setVisibility(View.INVISIBLE);
         viewElements.buttonCheckMark.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
         viewElements.toolbarContainer.setTranslationY(-AppUtils.getHeightPx(activity));
+        viewElements.toolbarContainer.setVisibility(View.INVISIBLE);
         viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
+        viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
 
         viewElements.buttonNewMeeting.setVisibility(View.VISIBLE);
         viewElements.buttonNewMeeting.animate()
@@ -32,14 +37,12 @@ public class Map extends MapState implements IApplicationState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
 
-        viewElements.newMeetingContainer.animate()
-                .translationY(viewElements.newMeetingContainer.getHeight() + 20)
-                .alpha(0.0f)
-                .setDuration(ANIMATION_TIME);
-        viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
-        viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
-
+        viewElements.toolbarContainer.setVisibility(View.VISIBLE);
         viewElements.toolbarContainer.setEnabled(true);
+        viewElements.toolbarContainer.animate()
+                .translationY(0)
+                .alpha(1.0f)
+                .setDuration(ANIMATION_TIME);
 
         activity.enableFragment(true);
     }
