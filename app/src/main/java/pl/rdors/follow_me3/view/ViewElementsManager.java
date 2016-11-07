@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.rdors.follow_me3.fragment.MapFragment;
-import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.state.map.MeetingMap;
 import pl.rdors.follow_me3.MyCustomAdapter;
 import pl.rdors.follow_me3.state.map.NewMeeting;
@@ -41,27 +40,27 @@ public class ViewElementsManager {
         viewElements.toolbarContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openAutocompleteActivity();
+                toolbarContainerOnClick();
             }
         });
 
         viewElements.buttonCheckMark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                animateButtonCheckMark();
+                buttonCheckMarkOnClick();
             }
         });
 
         viewElements.buttonNewMeeting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                animateButtonNewMeeting();
+                buttonNewMeetingOnClick();
             }
         });
     }
 
 
-    private void openAutocompleteActivity() {
+    private void toolbarContainerOnClick() {
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(activity);
             activity.startActivityForResult(intent, AppUtils.LocationConstants.REQUEST_CODE_AUTOCOMPLETE);
@@ -74,7 +73,7 @@ public class ViewElementsManager {
         }
     }
 
-    private void animateButtonNewMeeting() {
+    private void buttonNewMeetingOnClick() {
         if (activity.getFragment() != null
                 && activity.getFragment() instanceof MapFragment) {
             activity.setApplicationState(new MeetingMap(activity, ((MapFragment)activity.getFragment()).getMapManager(), viewElements));
@@ -82,7 +81,7 @@ public class ViewElementsManager {
         }
     }
 
-    public void animateButtonCheckMark() {
+    public void buttonCheckMarkOnClick() {
         if (activity.getFragment() != null
                 && activity.getFragment() instanceof MapFragment) {
             activity.setApplicationState(new NewMeeting(activity, ((MapFragment)activity.getFragment()).getMapManager(), viewElements));
