@@ -83,17 +83,8 @@ public class ViewElementsManager {
         activity.getApplicationState().init();
     }
 
-    public void animateWhenNewMeetingHide() {
-        activity.setApplicationState(new Map(activity, viewElements));
-        activity.getApplicationState().init();
-    }
-
     public void handleLocation(String location) {
         viewElements.locationAddress.setText(location != null ? location : "Address not found");
-    }
-
-    public boolean isNewMeetingContainerVisible() {
-        return viewElements.newMeetingContainer.getVisibility() == View.VISIBLE;
     }
 
     MyCustomAdapter dataAdapter = null;
