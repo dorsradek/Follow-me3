@@ -13,8 +13,7 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import pl.rdors.follow_me3.fragment.AbleToEnable;
-import pl.rdors.follow_me3.state.IBackPressable;
+import pl.rdors.follow_me3.state.IAbleToEnable;
 import pl.rdors.follow_me3.fragment.EventsFragment;
 import pl.rdors.follow_me3.fragment.IOnActivityResult;
 import pl.rdors.follow_me3.fragment.MapFragment;
@@ -80,12 +79,6 @@ public class TestActivity extends AppCompatActivity {
         }
     }
 
-    public void enableFragment(boolean enable) {
-        if (fragment instanceof AbleToEnable) {
-            ((AbleToEnable) fragment).enable(enable);
-        }
-    }
-
     public void displayView(IDrawerItem drawerItem) {
         String title = getString(R.string.app_name);
 
@@ -125,6 +118,10 @@ public class TestActivity extends AppCompatActivity {
 
     public void setApplicationState(IApplicationState applicationState) {
         this.applicationState = applicationState;
+    }
+
+    public Fragment getFragment() {
+        return fragment;
     }
 
 }

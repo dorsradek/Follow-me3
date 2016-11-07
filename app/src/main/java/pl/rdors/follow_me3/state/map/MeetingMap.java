@@ -3,7 +3,7 @@ package pl.rdors.follow_me3.state.map;
 import android.view.View;
 
 import pl.rdors.follow_me3.TestActivity;
-import pl.rdors.follow_me3.state.IApplicationState;
+import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
@@ -13,10 +13,10 @@ import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
  * Created by rdors on 2016-11-06.
  */
 
-public class MeetingMap extends MapState implements IApplicationState {
+public class MeetingMap extends MapState {
 
-    public MeetingMap(TestActivity activity, ViewElements viewElements) {
-        super(activity, viewElements);
+    public MeetingMap(TestActivity activity, MapManager mapManager, ViewElements viewElements) {
+        super(activity, mapManager, viewElements);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class MeetingMap extends MapState implements IApplicationState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
 
-        activity.enableFragment(true);
+        enable(true);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class MeetingMap extends MapState implements IApplicationState {
 
     @Override
     public void back() {
-        activity.setApplicationState(new Map(activity, viewElements));
+        activity.setApplicationState(new Map(activity, mapManager, viewElements));
         activity.getApplicationState().init();
     }
 

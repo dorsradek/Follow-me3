@@ -45,7 +45,7 @@ public class MapManager implements OnMapReadyCallback {
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        activity.setApplicationState(new Map(activity, viewElements));
+        activity.setApplicationState(new Map(activity, this, viewElements));
         activity.getApplicationState().init();
 
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -64,12 +64,6 @@ public class MapManager implements OnMapReadyCallback {
             public void onCameraMoveStarted(int i) {
                 activity.getApplicationState().animateWhenMapMoveStarted();
                 viewElementsManager.handleLocation("");
-            }
-        });
-
-        this.googleMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
             }
         });
 

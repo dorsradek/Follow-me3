@@ -13,6 +13,7 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.state.map.MeetingMap;
 import pl.rdors.follow_me3.MyCustomAdapter;
@@ -74,13 +75,19 @@ public class ViewElementsManager {
     }
 
     private void animateButtonNewMeeting() {
-        activity.setApplicationState(new MeetingMap(activity, viewElements));
-        activity.getApplicationState().init();
+        if (activity.getFragment() != null
+                && activity.getFragment() instanceof MapFragment) {
+            activity.setApplicationState(new MeetingMap(activity, ((MapFragment)activity.getFragment()).getMapManager(), viewElements));
+            activity.getApplicationState().init();
+        }
     }
 
     public void animateButtonCheckMark() {
-        activity.setApplicationState(new NewMeeting(activity, viewElements));
-        activity.getApplicationState().init();
+        if (activity.getFragment() != null
+                && activity.getFragment() instanceof MapFragment) {
+            activity.setApplicationState(new NewMeeting(activity, ((MapFragment)activity.getFragment()).getMapManager(), viewElements));
+            activity.getApplicationState().init();
+        }
     }
 
     public void handleLocation(String location) {

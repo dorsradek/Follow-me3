@@ -26,6 +26,7 @@ import pl.rdors.follow_me3.google.GoogleApiTool;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.state.IAbleToEnable;
 import pl.rdors.follow_me3.state.map.LaunchingMap;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
@@ -33,7 +34,7 @@ import pl.rdors.follow_me3.view.ViewElementsManager;
 
 import static android.app.Activity.RESULT_OK;
 
-public class MapFragment extends Fragment implements IOnActivityResult, AbleToEnable {
+public class MapFragment extends Fragment implements IOnActivityResult {
 
     private TestActivity activity;
     private ViewElementsManager viewElementsManager;
@@ -61,7 +62,7 @@ public class MapFragment extends Fragment implements IOnActivityResult, AbleToEn
         mapManager = new MapManager(activity, intentServiceTool, viewElementsManager, viewElements);
         googleApiTool = new GoogleApiTool(activity, mapManager);
 
-        activity.setApplicationState(new LaunchingMap(activity, viewElements));
+        activity.setApplicationState(new LaunchingMap(activity, mapManager, viewElements));
         activity.getApplicationState().init();
 
         mapFragment.getMapAsync(mapManager);
@@ -123,10 +124,23 @@ public class MapFragment extends Fragment implements IOnActivityResult, AbleToEn
         }
     }
 
-    @Override
-    public void enable(boolean enable) {
-        mapManager.getGoogleMap().getUiSettings().setScrollGesturesEnabled(enable);
-        mapManager.getGoogleMap().getUiSettings().setIndoorLevelPickerEnabled(enable);
-        mapManager.getGoogleMap().getUiSettings().setZoomGesturesEnabled(enable);
+    public ViewElementsManager getViewElementsManager() {
+        return viewElementsManager;
+    }
+
+    public MapManager getMapManager() {
+        return mapManager;
+    }
+
+    public IntentServiceTool getIntentServiceTool() {
+        return intentServiceTool;
+    }
+
+    public AddressResultReceiver getAddressResultReceiver() {
+        return addressResultReceiver;
+    }
+
+    public GoogleApiTool getGoogleApiTool() {
+        return googleApiTool;
     }
 }
