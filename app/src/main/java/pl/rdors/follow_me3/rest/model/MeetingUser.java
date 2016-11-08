@@ -10,7 +10,7 @@ public class MeetingUser {
     private double y;
     private String lastUpdate;
     private UserStatus userStatus;
-    private Meeting meeting;
+    private transient Meeting meeting;
     private User user;
 
     public boolean isOwner() {

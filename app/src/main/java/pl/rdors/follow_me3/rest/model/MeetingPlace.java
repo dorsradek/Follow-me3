@@ -6,7 +6,7 @@ package pl.rdors.follow_me3.rest.model;
 public class MeetingPlace {
 
     private boolean owner;
-    private Meeting meeting;
+    private transient Meeting meeting;
     private Place place;
 
     public boolean isOwner() {

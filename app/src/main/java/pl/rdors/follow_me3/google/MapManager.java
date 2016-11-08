@@ -1,17 +1,22 @@
 package pl.rdors.follow_me3.google;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -31,6 +36,8 @@ import pl.rdors.follow_me3.view.ViewElementsManager;
  */
 
 public class MapManager implements OnMapReadyCallback {
+
+    private LatLng latLngCenter;
 
     private GoogleMap googleMap;
 
@@ -84,7 +91,7 @@ public class MapManager implements OnMapReadyCallback {
 
     @NonNull
     private Location createLocation(CameraPosition cameraPosition) {
-        LatLng latLngCenter = cameraPosition.target;
+        latLngCenter = cameraPosition.target;
         Location location = new Location("");
         location.setLatitude(latLngCenter.latitude);
         location.setLongitude(latLngCenter.longitude);
@@ -93,7 +100,7 @@ public class MapManager implements OnMapReadyCallback {
 
     public void changeLocationOnMap(Location location) {
         if (googleMap != null) {
-            LatLng latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
+            latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
             CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(17f).build();
 
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -107,6 +114,9 @@ public class MapManager implements OnMapReadyCallback {
 
     public void focusOnMeetings(List<Meeting> meetings) {
         googleMap.clear();
+        LatLngBounds.Builder bld = new LatLngBounds.Builder();
+        Location loc = getMyLocation();
+        bld.include(new LatLng(loc.getLatitude(), loc.getLongitude()));
         for (Meeting meeting : meetings) {
             for (MeetingPlace meetingPlace : meeting.getMeetingPlaces()) {
                 Place place = meetingPlace.getPlace();
@@ -115,7 +125,8 @@ public class MapManager implements OnMapReadyCallback {
                 location.setLatitude(place.getX());
                 location.setLongitude(place.getY());
 
-                changeLocationOnMap(location);
+                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
+                //changeLocationOnMap(location);
 
                 MarkerOptions marker = new MarkerOptions()
                         .position(new LatLng(location.getLatitude(), location.getLongitude()))
@@ -123,10 +134,37 @@ public class MapManager implements OnMapReadyCallback {
                 googleMap.addMarker(marker);
             }
         }
+        LatLngBounds bounds = bld.build();
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 5);
+        googleMap.animateCamera(cameraUpdate);
+    }
+
+    private Location getMyLocation() {
+        Location myLocation = new Location("");
+        myLocation.setLatitude(0);
+        myLocation.setLongitude(0);
+        LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            AppUtils.requestLocationPermission(activity);
+            return myLocation;
+        }
+        myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (myLocation == null) {
+            Criteria criteria = new Criteria();
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            String provider = lm.getBestProvider(criteria, true);
+            myLocation = lm.getLastKnownLocation(provider);
+        }
+        return myLocation;
     }
 
     public GoogleMap getGoogleMap() {
         return googleMap;
     }
 
+    public LatLng getLatLngCenter() {
+        return latLngCenter;
+    }
 }

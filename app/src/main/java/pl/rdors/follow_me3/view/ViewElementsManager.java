@@ -9,18 +9,28 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.rdors.follow_me3.fragment.MapFragment;
-import pl.rdors.follow_me3.state.map.MeetingMap;
+import okhttp3.ResponseBody;
 import pl.rdors.follow_me3.MyCustomAdapter;
-import pl.rdors.follow_me3.state.map.NewMeeting;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.fragment.MapFragment;
+import pl.rdors.follow_me3.rest.ServiceGenerator;
+import pl.rdors.follow_me3.rest.model.Meeting;
+import pl.rdors.follow_me3.rest.model.MeetingPlace;
+import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.rest.model.User;
+import pl.rdors.follow_me3.rest.service.MeetingService;
+import pl.rdors.follow_me3.state.map.MeetingMap;
+import pl.rdors.follow_me3.state.map.NewMeeting;
 import pl.rdors.follow_me3.utils.AppUtils;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by rdors on 2016-11-02.
@@ -76,7 +86,7 @@ public class ViewElementsManager {
     private void buttonNewMeetingOnClick() {
         if (activity.getFragment() != null
                 && activity.getFragment() instanceof MapFragment) {
-            activity.setApplicationState(new MeetingMap(activity, ((MapFragment)activity.getFragment()).getMapManager(), viewElements));
+            activity.setApplicationState(new MeetingMap(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
             activity.getApplicationState().init();
         }
     }
@@ -84,8 +94,32 @@ public class ViewElementsManager {
     public void buttonCheckMarkOnClick() {
         if (activity.getFragment() != null
                 && activity.getFragment() instanceof MapFragment) {
-            activity.setApplicationState(new NewMeeting(activity, ((MapFragment)activity.getFragment()).getMapManager(), viewElements));
+            activity.setApplicationState(new NewMeeting(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
             activity.getApplicationState().init();
+
+            LatLng latLng = ((MapFragment) activity.getFragment()).getMapManager().getLatLngCenter();
+            Meeting m = new Meeting();
+            m.setName("ASD");
+            Place place = new Place();
+            place.setName("aww");
+            place.setX(latLng.latitude);
+            place.setY(latLng.longitude);
+            MeetingPlace meetingPlace = new MeetingPlace();
+            meetingPlace.setPlace(place);
+            meetingPlace.setMeeting(m);
+            m.getMeetingPlaces().add(meetingPlace);
+            Call<ResponseBody> call = ServiceGenerator.createService(MeetingService.class).create(m);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    System.out.println(response.message());
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    System.out.println(t.getMessage());
+                }
+            });
         }
     }
 

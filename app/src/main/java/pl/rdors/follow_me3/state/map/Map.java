@@ -1,6 +1,5 @@
 package pl.rdors.follow_me3.state.map;
 
-import android.util.Log;
 import android.view.View;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class Map extends MapState {
             @Override
             public void onFailure(Call<List<Meeting>> call, Throwable t) {
                 // something went completely south (like no internet connection)
-                Log.d("Error", t.getMessage());
+                //Log.d("Error", t.getMessage());
             }
         });
 
