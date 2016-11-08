@@ -12,10 +12,16 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-import pl.rdors.follow_me3.state.map.Map;
+import java.util.List;
+
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.rest.model.Meeting;
+import pl.rdors.follow_me3.rest.model.MeetingPlace;
+import pl.rdors.follow_me3.rest.model.Place;
+import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 import pl.rdors.follow_me3.view.ViewElementsManager;
@@ -26,7 +32,6 @@ import pl.rdors.follow_me3.view.ViewElementsManager;
 
 public class MapManager implements OnMapReadyCallback {
 
-    private LatLng latLngCenter;
     private GoogleMap googleMap;
 
     private TestActivity activity;
@@ -79,7 +84,7 @@ public class MapManager implements OnMapReadyCallback {
 
     @NonNull
     private Location createLocation(CameraPosition cameraPosition) {
-        latLngCenter = cameraPosition.target;
+        LatLng latLngCenter = cameraPosition.target;
         Location location = new Location("");
         location.setLatitude(latLngCenter.latitude);
         location.setLongitude(latLngCenter.longitude);
@@ -87,9 +92,8 @@ public class MapManager implements OnMapReadyCallback {
     }
 
     public void changeLocationOnMap(Location location) {
-
         if (googleMap != null) {
-            latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
+            LatLng latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
             CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(17f).build();
 
             googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
@@ -99,6 +103,26 @@ public class MapManager implements OnMapReadyCallback {
             Toast.makeText(activity, "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    public void focusOnMeetings(List<Meeting> meetings) {
+        googleMap.clear();
+        for (Meeting meeting : meetings) {
+            for (MeetingPlace meetingPlace : meeting.getMeetingPlaces()) {
+                Place place = meetingPlace.getPlace();
+
+                Location location = new Location("");
+                location.setLatitude(place.getX());
+                location.setLongitude(place.getY());
+
+                changeLocationOnMap(location);
+
+                MarkerOptions marker = new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .title(meeting.getName());
+                googleMap.addMarker(marker);
+            }
+        }
     }
 
     public GoogleMap getGoogleMap() {

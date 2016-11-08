@@ -13,7 +13,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.rdors.follow_me3.model.User;
+import pl.rdors.follow_me3.rest.model.User;
 
 public class MyCustomAdapter extends ArrayAdapter<User> {
 

@@ -1,4 +1,4 @@
-package pl.rdors.follow_me3.model;
+package pl.rdors.follow_me3.rest.model;
 
 import java.io.Serializable;
 

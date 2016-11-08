@@ -19,7 +19,7 @@ import pl.rdors.follow_me3.MyCustomAdapter;
 import pl.rdors.follow_me3.state.map.NewMeeting;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
-import pl.rdors.follow_me3.model.User;
+import pl.rdors.follow_me3.rest.model.User;
 import pl.rdors.follow_me3.utils.AppUtils;
 
 /**

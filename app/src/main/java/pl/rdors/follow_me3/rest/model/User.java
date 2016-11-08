@@ -1,4 +1,4 @@
-package pl.rdors.follow_me3.model;
+package pl.rdors.follow_me3.rest.model;
 
 /**
  * Created by rdors on 2016-10-24.
@@ -7,6 +7,13 @@ public class User {
 
     private Long id;
     private String name;
+
+    public User() {
+    }
+
+    public User(String name) {
+        this.name = name;
+    }
 
     public Long getId() {
         return id;

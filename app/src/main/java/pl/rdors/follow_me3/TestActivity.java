@@ -13,11 +13,12 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
-import pl.rdors.follow_me3.state.IAbleToEnable;
 import pl.rdors.follow_me3.fragment.EventsFragment;
 import pl.rdors.follow_me3.fragment.IOnActivityResult;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.fragment.NewsFragment;
+import pl.rdors.follow_me3.rest.ServiceGenerator;
+import pl.rdors.follow_me3.rest.service.MeetingService;
 import pl.rdors.follow_me3.state.IApplicationState;
 
 public class TestActivity extends AppCompatActivity {
@@ -25,6 +26,7 @@ public class TestActivity extends AppCompatActivity {
     private Drawer result = null;
     private Fragment fragment;
     private IApplicationState applicationState;
+    private MeetingService meetingService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,8 @@ public class TestActivity extends AppCompatActivity {
                         return false;
                     }
                 }).build();
+
+        meetingService = ServiceGenerator.createService(MeetingService.class);
     }
 
     @Override
@@ -124,4 +128,7 @@ public class TestActivity extends AppCompatActivity {
         return fragment;
     }
 
+    public MeetingService getMeetingService() {
+        return meetingService;
+    }
 }

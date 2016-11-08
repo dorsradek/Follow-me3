@@ -1,12 +1,18 @@
 package pl.rdors.follow_me3.state.map;
 
+import android.util.Log;
 import android.view.View;
+
+import java.util.List;
 
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.google.MapManager;
-import pl.rdors.follow_me3.state.IApplicationState;
+import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
 
@@ -22,6 +28,26 @@ public class Map extends MapState {
 
     @Override
     public void init() {
+
+        Call<List<Meeting>> call = activity.getMeetingService().findAll();
+        call.enqueue(new Callback<List<Meeting>>() {
+            @Override
+            public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
+                if (response.isSuccessful()) {
+                    System.out.println(response.body());
+                    mapManager.focusOnMeetings(response.body());
+                } else {
+                    // error response, no access to resource?
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Meeting>> call, Throwable t) {
+                // something went completely south (like no internet connection)
+                Log.d("Error", t.getMessage());
+            }
+        });
+
         viewElements.buttonNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.buttonNewMeeting.setVisibility(View.INVISIBLE);
         viewElements.buttonCheckMark.setTranslationY(AppUtils.getHeightPx(activity));
