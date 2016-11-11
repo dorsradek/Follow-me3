@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Follow-me</string>
+    <string name="facebook_app_id">315052835531521</string>
+    <string name="fb_login_protocol_scheme">fb315052835531521</string>
 
     <string name="action_settings">Settings</string>
 

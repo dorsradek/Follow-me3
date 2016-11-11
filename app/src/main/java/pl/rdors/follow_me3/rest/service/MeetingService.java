@@ -7,12 +7,13 @@ import pl.rdors.follow_me3.rest.model.Meeting;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface MeetingService {
 
     @GET("/meetings")
-    Call<List<Meeting>> findAll();
+    Call<List<Meeting>> findAll(@Header("Authorization") String token);
 
     @POST("/meetings/create")
     Call<ResponseBody> create(@Body Meeting meeting);

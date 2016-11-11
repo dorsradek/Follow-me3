@@ -1,5 +1,7 @@
 package pl.rdors.follow_me3.state.map;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.View;
 
 import java.util.List;
@@ -27,8 +29,9 @@ public class Map extends MapState {
 
     @Override
     public void init() {
-
-        Call<List<Meeting>> call = activity.getMeetingService().findAll();
+        SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
+        String token = prefs.getString("token", "");
+        Call<List<Meeting>> call = activity.getMeetingService().findAll(token);
         call.enqueue(new Callback<List<Meeting>>() {
             @Override
             public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
