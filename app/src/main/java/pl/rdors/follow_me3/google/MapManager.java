@@ -19,6 +19,7 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -91,6 +92,8 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
         this.googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
+                Location location = createLocation(googleMap.getCameraPosition());
+                latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
                 activity.getApplicationState().animateWhenMapIdle();
             }
         });
@@ -221,6 +224,14 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
     private boolean isCorrectLocation(Location location) {
         return location != null &&
                 (location.getLongitude() != 0 || location.getLatitude() != 0);
+    }
+
+    private Location createLocation(CameraPosition cameraPosition) {
+        LatLng latLng = cameraPosition.target;
+        Location location = new Location("");
+        location.setLatitude(latLng.latitude);
+        location.setLongitude(latLng.longitude);
+        return location;
     }
 
     public GoogleApiClient getGoogleApiClient() {

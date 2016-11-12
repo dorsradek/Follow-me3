@@ -14,12 +14,19 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +46,6 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-
-    private static final String PUBLIC_STATIC_STRING_IDENTIFIER = "asd";
 
     @BindView(R.id.input_email)
     EditText _emailText;
@@ -74,11 +79,13 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.setCanceledOnTouchOutside(false);
 
+        LoginManager.getInstance().logOut();
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         progressDialog.show();
+                        asd(loginResult.getAccessToken());
                         AuthService authService = ServiceGenerator.createService(AuthService.class);
                         authService.facebook(loginResult.getAccessToken().getToken()).enqueue(new Callback<JwtAuthenticationResponse>() {
                             @Override
@@ -243,7 +250,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         if (view == facebookButton) {
-            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email"));
+            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email, user_friends"));
         }
     }
 
@@ -251,5 +258,36 @@ public class LoginActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+    }
+
+    private void asd(AccessToken token) {
+        Bundle args = new Bundle();
+        args.putInt("limit", 150);
+        GraphRequest request = new GraphRequest(token, "/me/friends", args, HttpMethod.GET, new GraphRequest.Callback() {
+            @Override
+            public void onCompleted(GraphResponse graphResponse) {
+                try {
+                    JSONObject graphObject = graphResponse.getJSONObject();
+                    JSONArray dataArray = graphObject.getJSONArray("data");
+                    for (int i = 0; i < dataArray.length(); i++) {
+                        try {
+                            JSONObject object = dataArray.getJSONObject(i);
+                            String str_id = object.getString("id");
+                            String str_name = object.getString("name");
+                            JSONObject picture_obj = object.getJSONObject("picture");
+                            JSONObject data_obj = picture_obj.getJSONObject("data");
+                            String str_url = data_obj.getString("url");
+                            System.out.println(str_id + " " + str_name + " " + str_url);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Exception=" + e);
+                    e.printStackTrace();
+                }
+            }
+        });
+        request.executeAsync();
     }
 }

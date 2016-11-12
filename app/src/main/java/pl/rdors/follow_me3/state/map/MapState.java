@@ -25,6 +25,8 @@ public abstract class MapState implements IApplicationState {
         mapManager.getGoogleMap().getUiSettings().setScrollGesturesEnabled(enable);
         mapManager.getGoogleMap().getUiSettings().setIndoorLevelPickerEnabled(enable);
         mapManager.getGoogleMap().getUiSettings().setZoomGesturesEnabled(enable);
+        mapManager.getGoogleMap().getUiSettings().setMapToolbarEnabled(false);
+        mapManager.getGoogleMap().getUiSettings().setMyLocationButtonEnabled(true);
     }
 
 }

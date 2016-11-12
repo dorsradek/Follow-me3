@@ -4,9 +4,6 @@ import android.location.Location;
 import android.os.Handler;
 import android.view.View;
 
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
@@ -70,6 +67,7 @@ public class MeetingMap extends MapState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
 
+        startIntentServiceOnLocation();
         enable(true);
     }
 
@@ -92,9 +90,7 @@ public class MeetingMap extends MapState {
 
     @Override
     public void animateWhenMapIdle() {
-        Location location = createLocation(mapManager.getGoogleMap().getCameraPosition());
-        mapManager.latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
-        intentServiceTool.startIntentService(location);
+        startIntentServiceOnLocation();
 
         viewElements.toolbarContainer.setVisibility(View.VISIBLE);
         viewElements.toolbarContainer.animate()
@@ -109,6 +105,13 @@ public class MeetingMap extends MapState {
                 .setDuration(viewElements.ANIMATION_TIME);
     }
 
+    private void startIntentServiceOnLocation() {
+        Location location = new Location("");
+        location.setLatitude(mapManager.latLngCenter.latitude);
+        location.setLongitude(mapManager.latLngCenter.longitude);
+        intentServiceTool.startIntentService(location);
+    }
+
     @Override
     public boolean canBack() {
         return true;
@@ -120,12 +123,5 @@ public class MeetingMap extends MapState {
         activity.getApplicationState().init();
     }
 
-    private Location createLocation(CameraPosition cameraPosition) {
-        LatLng latLng = cameraPosition.target;
-        Location location = new Location("");
-        location.setLatitude(latLng.latitude);
-        location.setLongitude(latLng.longitude);
-        return location;
-    }
 
 }
