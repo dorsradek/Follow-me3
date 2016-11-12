@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -19,12 +20,15 @@ import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
+import java.util.List;
+
 import pl.rdors.follow_me3.fragment.EventsFragment;
 import pl.rdors.follow_me3.fragment.IOnActivityResult;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.fragment.NewsFragment;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
 import pl.rdors.follow_me3.rest.model.JwtAuthenticationResponse;
+import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.service.AuthService;
 import pl.rdors.follow_me3.rest.service.MeetingService;
 import pl.rdors.follow_me3.state.IApplicationState;
@@ -55,25 +59,21 @@ public class TestActivity extends AppCompatActivity {
         prefs.edit().putString("username", "").apply();
 
         final String token = prefs.getString("token", "");
+
         AuthService authService = ServiceGenerator.createService(AuthService.class);
         authService.refresh(token).enqueue(new Callback<JwtAuthenticationResponse>() {
             @Override
             public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
-                if (response.body() == null) {
-                    Intent intent = new Intent(TestActivity.this, LoginActivity.class);
-                    startActivityForResult(intent, LOGIN_RESULT);
-                } else {
-                    prefs.edit().putString("username", response.body().getUser().getUsername()).apply();
-                    prefs.edit().putString("token", response.body().getToken()).apply();
-                }
+                handleAuthenticationResponse(response);
             }
 
             @Override
             public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
                 String username = prefs.getString("username", "");
                 if (username == null || username.isEmpty()) {
-                    Intent intent = new Intent(TestActivity.this, LoginActivity.class);
-                    startActivityForResult(intent, LOGIN_RESULT);
+                    onLoginFailed();
+                } else {
+                    onLoginSuccess();
                 }
             }
         });
@@ -97,6 +97,46 @@ public class TestActivity extends AppCompatActivity {
                         return false;
                     }
                 }).build();
+    }
+
+    private void handleAuthenticationResponse(Response<JwtAuthenticationResponse> response) {
+        JwtAuthenticationResponse jwtAuthenticationResponse = response.body();
+        if (jwtAuthenticationResponse != null) {
+            String token = jwtAuthenticationResponse.getToken();
+            prefs.edit().putString("token", token).apply();
+            prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
+            loadMeetings(token);
+        } else {
+            onLoginFailed();
+        }
+    }
+
+    private void loadMeetings(String token) {
+        MeetingService meetingService = ServiceGenerator.createService(MeetingService.class);
+        meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
+            @Override
+            public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
+                MeetingManager.getMeetings().addAll(response.body());
+                onLoginSuccess();
+            }
+
+            @Override
+            public void onFailure(Call<List<Meeting>> call, Throwable t) {
+                onLoginSuccess();
+            }
+        });
+    }
+
+    private void onLoginSuccess() {
+        fragment = MapFragment.newInstance();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_container, fragment);
+        ft.commit();
+    }
+
+    public void onLoginFailed() {
+        Intent intent = new Intent(TestActivity.this, LoginActivity.class);
+        startActivityForResult(intent, LOGIN_RESULT);
     }
 
     @Override
