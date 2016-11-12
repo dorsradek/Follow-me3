@@ -1,9 +1,16 @@
 package pl.rdors.follow_me3.state.map;
 
+import android.location.Location;
+import android.os.Handler;
 import android.view.View;
+
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.google.MapManager;
+import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
+import pl.rdors.follow_me3.intentservice.IntentServiceTool;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
@@ -15,8 +22,14 @@ import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
 
 public class MeetingMap extends MapState {
 
+    private IntentServiceTool intentServiceTool;
+    private AddressResultReceiver addressResultReceiver;
+
     public MeetingMap(TestActivity activity, MapManager mapManager, ViewElements viewElements) {
         super(activity, mapManager, viewElements);
+
+        addressResultReceiver = new AddressResultReceiver(new Handler(), viewElements);
+        intentServiceTool = new IntentServiceTool(addressResultReceiver, activity);
     }
 
     @Override
@@ -73,10 +86,16 @@ public class MeetingMap extends MapState {
                 .alpha(0.0f)
                 .setDuration(viewElements.ANIMATION_TIME);
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
+
+        viewElements.locationAddress.setText("");
     }
 
     @Override
     public void animateWhenMapIdle() {
+        Location location = createLocation(mapManager.getGoogleMap().getCameraPosition());
+        mapManager.latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
+        intentServiceTool.startIntentService(location);
+
         viewElements.toolbarContainer.setVisibility(View.VISIBLE);
         viewElements.toolbarContainer.animate()
                 .translationY(0)
@@ -99,6 +118,14 @@ public class MeetingMap extends MapState {
     public void back() {
         activity.setApplicationState(new Map(activity, mapManager, viewElements));
         activity.getApplicationState().init();
+    }
+
+    private Location createLocation(CameraPosition cameraPosition) {
+        LatLng latLng = cameraPosition.target;
+        Location location = new Location("");
+        location.setLatitude(latLng.latitude);
+        location.setLongitude(latLng.longitude);
+        return location;
     }
 
 }

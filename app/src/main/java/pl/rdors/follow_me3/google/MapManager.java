@@ -1,56 +1,66 @@
 package pl.rdors.follow_me3.google;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
-
+import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.TestActivity;
-import pl.rdors.follow_me3.intentservice.IntentServiceTool;
+import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.model.MeetingPlace;
 import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
-import pl.rdors.follow_me3.view.ViewElementsManager;
 
 /**
  * Created by rdors on 2016-11-02.
  */
 
-public class MapManager implements OnMapReadyCallback {
+public class MapManager implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private LatLng latLngCenter;
+    public final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+
+    public LatLng latLngCenter;
 
     private GoogleMap googleMap;
+    private GoogleApiClient googleApiClient;
 
     private TestActivity activity;
-    private IntentServiceTool intentServiceTool;
-    private ViewElementsManager viewElementsManager;
     private ViewElements viewElements;
 
-    public MapManager(TestActivity activity, IntentServiceTool intentServiceTool, ViewElementsManager viewElementsManager, ViewElements viewElements) {
+    public static String TAG = "MapManager";
+
+    public MapManager(TestActivity activity, ViewElements viewElements) {
         this.activity = activity;
-        this.intentServiceTool = intentServiceTool;
-        this.viewElementsManager = viewElementsManager;
         this.viewElements = viewElements;
+
+        if (checkPlayServices()) {
+            AppUtils.checkLocationEnabled(activity);
+            buildGoogleApiClient();
+        } else {
+            Toast.makeText(activity, "Location not supported in this device", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -75,49 +85,42 @@ public class MapManager implements OnMapReadyCallback {
             @Override
             public void onCameraMoveStarted(int i) {
                 activity.getApplicationState().animateWhenMapMoveStarted();
-                viewElementsManager.handleLocation("");
             }
         });
 
         this.googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
             public void onCameraIdle() {
-                Location location = createLocation(googleMap.getCameraPosition());
-                intentServiceTool.startIntentService(location);
                 activity.getApplicationState().animateWhenMapIdle();
             }
         });
+
+        focusOnMeetings();
     }
 
-    @NonNull
-    private Location createLocation(CameraPosition cameraPosition) {
-        latLngCenter = cameraPosition.target;
-        Location location = new Location("");
-        location.setLatitude(latLngCenter.latitude);
-        location.setLongitude(latLngCenter.longitude);
-        return location;
-    }
 
-    public void changeLocationOnMap(Location location) {
-        if (googleMap != null) {
-            latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(17f).build();
+//    public void changeLocationOnMap(Location location) {
+//        if (googleMap != null) {
+//            latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
+//            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(17f).build();
+//
+//            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//
+//            intentServiceTool.startIntentService(location);
+//        } else {
+//            Toast.makeText(activity, "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
 
-            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-            intentServiceTool.startIntentService(location);
-        } else {
-            Toast.makeText(activity, "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    public void focusOnMeetings(List<Meeting> meetings) {
+    public void focusOnMeetings() {
         googleMap.clear();
         LatLngBounds.Builder bld = new LatLngBounds.Builder();
-        Location loc = getMyLocation();
-        bld.include(new LatLng(loc.getLatitude(), loc.getLongitude()));
-        for (Meeting meeting : meetings) {
+        Location lastLocation = getMyLocation();
+        if (isCorrectLocation(lastLocation)) {
+            bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+        }
+        for (Meeting meeting : MeetingManager.getMeetings()) {
             for (MeetingPlace meetingPlace : meeting.getMeetingPlaces()) {
                 Place place = meetingPlace.getPlace();
 
@@ -126,7 +129,6 @@ public class MapManager implements OnMapReadyCallback {
                 location.setLongitude(place.getY());
 
                 bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
-                //changeLocationOnMap(location);
 
                 MarkerOptions marker = new MarkerOptions()
                         .position(new LatLng(location.getLatitude(), location.getLongitude()))
@@ -134,37 +136,94 @@ public class MapManager implements OnMapReadyCallback {
                 googleMap.addMarker(marker);
             }
         }
-        LatLngBounds bounds = bld.build();
+        try {
+            LatLngBounds bounds = bld.build();
 
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 5);
-        googleMap.animateCamera(cameraUpdate);
+            //TODO: padding deppends on location marker size
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
+            googleMap.animateCamera(cameraUpdate);
+        } catch (Exception e) {
+            Log.d(TAG, e.getMessage());
+        }
+
+        if (activity.getFragment() instanceof pl.rdors.follow_me3.fragment.MapFragment) {
+            ((MapFragment) activity.getFragment()).progressDialog.dismiss();
+        }
     }
 
     private Location getMyLocation() {
-        Location myLocation = new Location("");
-        myLocation.setLatitude(0);
-        myLocation.setLongitude(0);
-        LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        //TODO: get last location from shared preferences??
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             AppUtils.requestLocationPermission(activity);
-            return myLocation;
+            Location location = new Location("");
+            location.setLongitude(0);
+            location.setLatitude(0);
+            return location;
         }
-        myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (myLocation == null) {
-            Criteria criteria = new Criteria();
-            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-            String provider = lm.getBestProvider(criteria, true);
-            myLocation = lm.getLastKnownLocation(provider);
+        return LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        googleApiClient = new GoogleApiClient.Builder(activity)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int result = googleAPI.isGooglePlayServicesAvailable(activity);
+        if (result != ConnectionResult.SUCCESS) {
+            if (googleAPI.isUserResolvableError(result)) {
+                googleAPI.getErrorDialog(activity, result, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+            return false;
         }
-        return myLocation;
+        return true;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            AppUtils.requestLocationPermission(activity);
+            return;
+        }
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Connection suspended");
+        googleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection failed");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
     }
 
     public GoogleMap getGoogleMap() {
         return googleMap;
     }
 
-    public LatLng getLatLngCenter() {
-        return latLngCenter;
+    private boolean isCorrectLocation(Location location) {
+        return location != null &&
+                (location.getLongitude() != 0 || location.getLatitude() != 0);
+    }
+
+    public GoogleApiClient getGoogleApiClient() {
+        return googleApiClient;
     }
 }

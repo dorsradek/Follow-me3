@@ -35,4 +35,8 @@ public class ViewElements {
         locationMarkerContainer = (LinearLayout) view.findViewById(R.id.container_location_marker);
         meetingContactsListView = (ListView) view.findViewById(R.id.list_meeting_contacts);
     }
+
+    public void handleLocation(String location) {
+        locationAddress.setText(location != null ? location : "Address not found");
+    }
 }

@@ -62,4 +62,20 @@ public class Meeting {
     public void setMeetingUsers(List<MeetingUser> meetingUsers) {
         this.meetingUsers = meetingUsers;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Meeting meeting = (Meeting) o;
+
+        return id != null ? id.equals(meeting.id) : meeting.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

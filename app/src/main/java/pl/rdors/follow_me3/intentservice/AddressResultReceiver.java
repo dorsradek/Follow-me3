@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v4.os.ResultReceiver;
 import android.view.View;
 
+import pl.rdors.follow_me3.view.ViewElements;
 import pl.rdors.follow_me3.view.ViewElementsManager;
 import pl.rdors.follow_me3.utils.AppUtils;
 
@@ -18,11 +19,11 @@ public class AddressResultReceiver extends ResultReceiver {
     private String city;
     private String street;
 
-    private ViewElementsManager viewElementsManager;
+    private ViewElements viewElements;
 
-    public AddressResultReceiver(Handler handler, ViewElementsManager viewElementsManager) {
+    public AddressResultReceiver(Handler handler, ViewElements viewElements) {
         super(handler);
-        this.viewElementsManager = viewElementsManager;
+        this.viewElements = viewElements;
     }
 
     /**
@@ -42,7 +43,7 @@ public class AddressResultReceiver extends ResultReceiver {
      * Updates the address in the UI.
      */
     private void displayAddressOutput() {
-        viewElementsManager.handleLocation(street);
+        viewElements.handleLocation(street);
     }
 
 }

@@ -1,5 +1,6 @@
 package pl.rdors.follow_me3;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,18 +36,19 @@ public class TestActivity extends AppCompatActivity {
 
     private static final String TAG = "TestActivity";
 
+    private static final int LOGIN_RESULT = 11;
+
     private Drawer result = null;
     private Fragment fragment;
     private IApplicationState applicationState;
-    private MeetingService meetingService;
     SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
         FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
-
+        AppEventsLogger.activateApp(getApplication());
 
         prefs = this.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
 
@@ -59,7 +61,7 @@ public class TestActivity extends AppCompatActivity {
             public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
                 if (response.body() == null) {
                     Intent intent = new Intent(TestActivity.this, LoginActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, LOGIN_RESULT);
                 } else {
                     prefs.edit().putString("username", response.body().getUser().getUsername()).apply();
                     prefs.edit().putString("token", response.body().getToken()).apply();
@@ -71,7 +73,7 @@ public class TestActivity extends AppCompatActivity {
                 String username = prefs.getString("username", "");
                 if (username == null || username.isEmpty()) {
                     Intent intent = new Intent(TestActivity.this, LoginActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, LOGIN_RESULT);
                 }
             }
         });
@@ -95,13 +97,18 @@ public class TestActivity extends AppCompatActivity {
                         return false;
                     }
                 }).build();
+    }
 
-        meetingService = ServiceGenerator.createService(MeetingService.class);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+    }
 
-        fragment = MapFragment.newInstance();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_container, fragment);
-        ft.commit();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume");
     }
 
     @Override
@@ -127,6 +134,18 @@ public class TestActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (LOGIN_RESULT) : {
+                if (resultCode == Activity.RESULT_OK) {
+
+                    fragment = MapFragment.newInstance();
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    ft.replace(R.id.fragment_container, fragment);
+                    ft.commit();
+                }
+                break;
+            }
+        }
         if (fragment instanceof IOnActivityResult) {
             ((IOnActivityResult) fragment).apply(requestCode, resultCode, data);
         }
@@ -186,9 +205,5 @@ public class TestActivity extends AppCompatActivity {
 
     public Fragment getFragment() {
         return fragment;
-    }
-
-    public MeetingService getMeetingService() {
-        return meetingService;
     }
 }

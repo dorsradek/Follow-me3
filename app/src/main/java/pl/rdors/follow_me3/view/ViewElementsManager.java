@@ -93,13 +93,13 @@ public class ViewElementsManager {
         }
     }
 
-    public void buttonCheckMarkOnClick() {
+    private void buttonCheckMarkOnClick() {
         if (activity.getFragment() != null
                 && activity.getFragment() instanceof MapFragment) {
             activity.setApplicationState(new NewMeeting(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
             activity.getApplicationState().init();
 
-            LatLng latLng = ((MapFragment) activity.getFragment()).getMapManager().getLatLngCenter();
+            LatLng latLng = ((MapFragment) activity.getFragment()).getMapManager().latLngCenter;
             Meeting m = new Meeting();
             m.setName("ASD");
             Place place = new Place();
@@ -110,6 +110,8 @@ public class ViewElementsManager {
             meetingPlace.setPlace(place);
             meetingPlace.setMeeting(m);
             m.getMeetingPlaces().add(meetingPlace);
+
+            //TODO: repair adding new meeting
 
             SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
             String token = prefs.getString("token", "");
@@ -128,9 +130,6 @@ public class ViewElementsManager {
         }
     }
 
-    public void handleLocation(String location) {
-        viewElements.locationAddress.setText(location != null ? location : "Address not found");
-    }
 
     MyCustomAdapter dataAdapter = null;
 

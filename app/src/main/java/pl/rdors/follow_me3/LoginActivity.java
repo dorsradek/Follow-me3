@@ -1,5 +1,6 @@
 package pl.rdors.follow_me3;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,13 +22,16 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
 import pl.rdors.follow_me3.rest.model.JwtAuthenticationRequest;
 import pl.rdors.follow_me3.rest.model.JwtAuthenticationResponse;
+import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.service.AuthService;
+import pl.rdors.follow_me3.rest.service.MeetingService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,6 +39,8 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+
+    private static final String PUBLIC_STATIC_STRING_IDENTIFIER = "asd";
 
     @BindView(R.id.input_email)
     EditText _emailText;
@@ -77,18 +83,12 @@ public class LoginActivity extends AppCompatActivity {
                         authService.facebook(loginResult.getAccessToken().getToken()).enqueue(new Callback<JwtAuthenticationResponse>() {
                             @Override
                             public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
-                                JwtAuthenticationResponse jwtAuthenticationResponse = response.body();
-                                String token = jwtAuthenticationResponse.getToken();
-                                prefs.edit().putString("token", token).apply();
-                                prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
-                                onLoginSuccess();
-                                progressDialog.dismiss();
+                                handleAuthenticationResponse(response);
                             }
 
                             @Override
                             public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
                                 onLoginFailed();
-                                progressDialog.dismiss();
                             }
                         });
                     }
@@ -96,13 +96,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onCancel() {
                         onLoginFailed();
-                        progressDialog.dismiss();
                     }
 
                     @Override
                     public void onError(FacebookException exception) {
                         onLoginFailed();
-                        progressDialog.dismiss();
                     }
                 });
 
@@ -148,22 +146,40 @@ public class LoginActivity extends AppCompatActivity {
         authService.auth(request).enqueue(new Callback<JwtAuthenticationResponse>() {
             @Override
             public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
-                JwtAuthenticationResponse jwtAuthenticationResponse = response.body();
-                if (jwtAuthenticationResponse != null) {
-                    String token = jwtAuthenticationResponse.getToken();
-                    prefs.edit().putString("token", token).apply();
-                    prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
-                    onLoginSuccess();
-                } else {
-                    onLoginFailed();
-                }
-                progressDialog.dismiss();
+                handleAuthenticationResponse(response);
             }
 
             @Override
             public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
                 onLoginFailed();
-                progressDialog.dismiss();
+            }
+        });
+    }
+
+    private void handleAuthenticationResponse(Response<JwtAuthenticationResponse> response) {
+        JwtAuthenticationResponse jwtAuthenticationResponse = response.body();
+        if (jwtAuthenticationResponse != null) {
+            String token = jwtAuthenticationResponse.getToken();
+            prefs.edit().putString("token", token).apply();
+            prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
+            loadMeetings(token);
+        } else {
+            onLoginFailed();
+        }
+    }
+
+    private void loadMeetings(String token) {
+        MeetingService meetingService = ServiceGenerator.createService(MeetingService.class);
+        meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
+            @Override
+            public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
+                MeetingManager.getMeetings().addAll(response.body());
+                onLoginSuccess();
+            }
+
+            @Override
+            public void onFailure(Call<List<Meeting>> call, Throwable t) {
+                onLoginSuccess();
             }
         });
     }
@@ -188,11 +204,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
+        progressDialog.dismiss();
         _loginButton.setEnabled(true);
+
+        Intent resultIntent = new Intent();
+        setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
 
     public void onLoginFailed() {
+        progressDialog.dismiss();
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
         _loginButton.setEnabled(true);
     }
@@ -224,5 +245,11 @@ public class LoginActivity extends AppCompatActivity {
         if (view == facebookButton) {
             LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email"));
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 }

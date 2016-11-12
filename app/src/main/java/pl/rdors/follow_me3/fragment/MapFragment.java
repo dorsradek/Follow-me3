@@ -1,14 +1,15 @@
 package pl.rdors.follow_me3.fragment;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
-import pl.rdors.follow_me3.google.GoogleApiTool;
 import pl.rdors.follow_me3.google.MapManager;
-import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
-import pl.rdors.follow_me3.intentservice.IntentServiceTool;
-import pl.rdors.follow_me3.state.IAbleToEnable;
 import pl.rdors.follow_me3.state.map.LaunchingMap;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
@@ -36,31 +33,56 @@ import static android.app.Activity.RESULT_OK;
 
 public class MapFragment extends Fragment implements IOnActivityResult {
 
+    private static final String TAG = "MapFragment";
+
     private TestActivity activity;
     private ViewElementsManager viewElementsManager;
     private MapManager mapManager;
-    private IntentServiceTool intentServiceTool;
-    private AddressResultReceiver addressResultReceiver;
-    private GoogleApiTool googleApiTool;
+
+    public ProgressDialog progressDialog;
+
+    private static MapFragment fragment;
 
     public static MapFragment newInstance() {
-        MapFragment fragment = new MapFragment();
+        if (fragment == null) {
+            fragment = new MapFragment();
+        }
         return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG, "onAttach");
+
+        activity = (TestActivity) context;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
+
+        progressDialog = new ProgressDialog(this.getContext(), R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView");
+
         View view = inflater.inflate(R.layout.fragment_map, null, false);
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
 
         ViewElements viewElements = new ViewElements(view);
         viewElementsManager = new ViewElementsManager(activity, viewElements);
-        addressResultReceiver = new AddressResultReceiver(new Handler(), viewElementsManager);
-        intentServiceTool = new IntentServiceTool(addressResultReceiver, activity);
-        mapManager = new MapManager(activity, intentServiceTool, viewElementsManager, viewElements);
-        googleApiTool = new GoogleApiTool(activity, mapManager);
+        mapManager = new MapManager(activity, viewElements);
 
         activity.setApplicationState(new LaunchingMap(activity, mapManager, viewElements));
         activity.getApplicationState().init();
@@ -70,22 +92,12 @@ public class MapFragment extends Fragment implements IOnActivityResult {
         return view;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        activity = (TestActivity) context;
-    }
 
     @Override
     public void onStart() {
         super.onStart();
         try {
-            googleApiTool.getGoogleApiClient().connect();
+            mapManager.getGoogleApiClient().connect();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -99,8 +111,8 @@ public class MapFragment extends Fragment implements IOnActivityResult {
         } catch (RuntimeException e) {
             e.printStackTrace();
         }
-        if (googleApiTool.getGoogleApiClient() != null && googleApiTool.getGoogleApiClient().isConnected()) {
-            googleApiTool.getGoogleApiClient().disconnect();
+        if (mapManager.getGoogleApiClient() != null && mapManager.getGoogleApiClient().isConnected()) {
+            mapManager.getGoogleApiClient().disconnect();
         }
     }
 
@@ -124,23 +136,7 @@ public class MapFragment extends Fragment implements IOnActivityResult {
         }
     }
 
-    public ViewElementsManager getViewElementsManager() {
-        return viewElementsManager;
-    }
-
     public MapManager getMapManager() {
         return mapManager;
-    }
-
-    public IntentServiceTool getIntentServiceTool() {
-        return intentServiceTool;
-    }
-
-    public AddressResultReceiver getAddressResultReceiver() {
-        return addressResultReceiver;
-    }
-
-    public GoogleApiTool getGoogleApiTool() {
-        return googleApiTool;
     }
 }
