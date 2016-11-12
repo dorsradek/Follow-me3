@@ -6,13 +6,13 @@ package pl.rdors.follow_me3.rest.model;
 public class User {
 
     private Long id;
-    private String name;
+    private String username;
 
     public User() {
     }
 
-    public User(String name) {
-        this.name = name;
+    public User(String username) {
+        this.username = username;
     }
 
     public Long getId() {
@@ -23,12 +23,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
 }

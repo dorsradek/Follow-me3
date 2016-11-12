@@ -1,6 +1,8 @@
 package pl.rdors.follow_me3.view;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
@@ -108,7 +110,10 @@ public class ViewElementsManager {
             meetingPlace.setPlace(place);
             meetingPlace.setMeeting(m);
             m.getMeetingPlaces().add(meetingPlace);
-            Call<ResponseBody> call = ServiceGenerator.createService(MeetingService.class).create(m);
+
+            SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
+            String token = prefs.getString("token", "");
+            Call<ResponseBody> call = ServiceGenerator.createService(MeetingService.class).create(m, token);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -178,7 +183,7 @@ public class ViewElementsManager {
                 // When clicked, show a toast with the TextView text
                 User country = (User) parent.getItemAtPosition(position);
                 Toast.makeText(activity,
-                        "Clicked on Row: " + country.getName(),
+                        "Clicked on Row: " + country.getUsername(),
                         Toast.LENGTH_LONG).show();
             }
         });

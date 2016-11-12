@@ -64,8 +64,8 @@ public class MyCustomAdapter extends ArrayAdapter<User> {
         }
 
         User country = countryList.get(position);
-        holder.code.setText(" (" + country.getName() + ")");
-        holder.name.setText(country.getName());
+        holder.code.setText(" (" + country.getUsername() + ")");
+        holder.name.setText(country.getUsername());
         holder.name.setChecked(false);
         holder.name.setTag(country);
 

@@ -16,6 +16,6 @@ public interface MeetingService {
     Call<List<Meeting>> findAll(@Header("Authorization") String token);
 
     @POST("/meetings/create")
-    Call<ResponseBody> create(@Body Meeting meeting);
+    Call<ResponseBody> create(@Body Meeting meeting, @Header("Authorization") String token);
 
 }
