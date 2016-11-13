@@ -22,9 +22,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import pl.rdors.follow_me3.MeetingManager;
+import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.rest.model.Meeting;
@@ -67,6 +69,12 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
+
+        boolean success = googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(activity, R.raw.map_style));
+        if (success) {
+            Log.d(TAG, "Map style success!");
+        }
 
         activity.setApplicationState(new Map(activity, this, viewElements));
         activity.getApplicationState().init();

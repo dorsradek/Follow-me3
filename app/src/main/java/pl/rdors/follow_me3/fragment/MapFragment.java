@@ -44,9 +44,9 @@ public class MapFragment extends Fragment implements IOnActivityResult {
     private static MapFragment fragment;
 
     public static MapFragment newInstance() {
-        if (fragment == null) {
+        //if (fragment == null) {
             fragment = new MapFragment();
-        }
+        //}
         return fragment;
     }
 

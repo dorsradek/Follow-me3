@@ -54,4 +54,11 @@
             android:title="@string/action_settings"
             app:showAsAction="ifRoom" />
     </group>
+    <group android:id="@+id/md_menu_third_group">
+        <item
+            android:id="@+id/action_logout"
+            android:orderInCategory="100"
+            android:title="@string/action_logout"
+            app:showAsAction="ifRoom" />
+    </group>
 </menu>

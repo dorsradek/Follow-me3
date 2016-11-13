@@ -79,13 +79,11 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.setCanceledOnTouchOutside(false);
 
-        LoginManager.getInstance().logOut();
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         progressDialog.show();
-                        asd(loginResult.getAccessToken());
                         AuthService authService = ServiceGenerator.createService(AuthService.class);
                         authService.facebook(loginResult.getAccessToken().getToken()).enqueue(new Callback<JwtAuthenticationResponse>() {
                             @Override
@@ -169,26 +167,10 @@ public class LoginActivity extends AppCompatActivity {
             String token = jwtAuthenticationResponse.getToken();
             prefs.edit().putString("token", token).apply();
             prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
-            loadMeetings(token);
+            onLoginSuccess();
         } else {
             onLoginFailed();
         }
-    }
-
-    private void loadMeetings(String token) {
-        MeetingService meetingService = ServiceGenerator.createService(MeetingService.class);
-        meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
-            @Override
-            public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
-                MeetingManager.getMeetings().addAll(response.body());
-                onLoginSuccess();
-            }
-
-            @Override
-            public void onFailure(Call<List<Meeting>> call, Throwable t) {
-                onLoginSuccess();
-            }
-        });
     }
 
     @Override
@@ -250,7 +232,28 @@ public class LoginActivity extends AppCompatActivity {
 
     public void onClick(View view) {
         if (view == facebookButton) {
-            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email, user_friends"));
+            AccessToken accessToken = AccessToken.getCurrentAccessToken();
+            if (accessToken != null
+                    && accessToken.getToken() != null
+                    && !accessToken.getToken().isEmpty()
+                    && !accessToken.isExpired()) {
+                progressDialog.show();
+                AuthService authService = ServiceGenerator.createService(AuthService.class);
+                authService.facebook(accessToken.getToken()).enqueue(new Callback<JwtAuthenticationResponse>() {
+                    @Override
+                    public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
+                        handleAuthenticationResponse(response);
+                    }
+
+                    @Override
+                    public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
+                        onLoginFailed();
+                    }
+                });
+            } else {
+                LoginManager.getInstance().logOut();
+                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email, user_friends"));
+            }
         }
     }
 
@@ -258,36 +261,5 @@ public class LoginActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-    }
-
-    private void asd(AccessToken token) {
-        Bundle args = new Bundle();
-        args.putInt("limit", 150);
-        GraphRequest request = new GraphRequest(token, "/me/friends", args, HttpMethod.GET, new GraphRequest.Callback() {
-            @Override
-            public void onCompleted(GraphResponse graphResponse) {
-                try {
-                    JSONObject graphObject = graphResponse.getJSONObject();
-                    JSONArray dataArray = graphObject.getJSONArray("data");
-                    for (int i = 0; i < dataArray.length(); i++) {
-                        try {
-                            JSONObject object = dataArray.getJSONObject(i);
-                            String str_id = object.getString("id");
-                            String str_name = object.getString("name");
-                            JSONObject picture_obj = object.getJSONObject("picture");
-                            JSONObject data_obj = picture_obj.getJSONObject("data");
-                            String str_url = data_obj.getString("url");
-                            System.out.println(str_id + " " + str_name + " " + str_url);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.println("Exception=" + e);
-                    e.printStackTrace();
-                }
-            }
-        });
-        request.executeAsync();
     }
 }

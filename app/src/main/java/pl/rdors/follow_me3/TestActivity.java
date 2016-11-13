@@ -12,13 +12,20 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -47,36 +54,112 @@ public class TestActivity extends AppCompatActivity {
     private IApplicationState applicationState;
     SharedPreferences prefs;
 
+    private String username;
+    private String token;
+    private AccessToken accessToken;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(getApplication());
 
         prefs = this.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
 
-        prefs.edit().putString("username", "").apply();
+        username = prefs.getString("username", "");
+        token = prefs.getString("token", "");
+        accessToken = AccessToken.getCurrentAccessToken();
 
-        final String token = prefs.getString("token", "");
+        if (accessToken != null
+                && accessToken.getToken() != null
+                && !accessToken.getToken().isEmpty()) {
+            AccessToken.refreshCurrentAccessTokenAsync();
+        }
 
+        if (username == null || username.isEmpty()) {
+            goToLogin();
+        } else {
+            handleExistenceOfUsername();
+        }
+    }
+
+    private void handleExistenceOfUsername() {
+        if (token == null || token.isEmpty()) {
+            handleNoExistenceOfTokenWS();
+        } else {
+            handleExistenceOfTokenWS();
+        }
+    }
+
+    private void handleExistenceOfTokenWS() {
+        //pobierz token WS na podstawie tokena WS
         AuthService authService = ServiceGenerator.createService(AuthService.class);
         authService.refresh(token).enqueue(new Callback<JwtAuthenticationResponse>() {
             @Override
             public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
-                handleAuthenticationResponse(response);
+                handleAuthenticationData(response);
+                if (token == null || token.isEmpty()) {
+                    handleNoExistenceOfTokenWS();
+                } else {
+                    goToApplication();
+                }
             }
 
             @Override
             public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
-                String username = prefs.getString("username", "");
-                if (username == null || username.isEmpty()) {
-                    onLoginFailed();
-                } else {
-                    onLoginSuccess();
-                }
+                handleNoExistenceOfTokenWS();
             }
         });
+    }
+
+    private void handleAuthenticationData(Response<JwtAuthenticationResponse> response) {
+        JwtAuthenticationResponse authenticationResponse = response.body();
+        if (authenticationResponse != null) {
+            token = authenticationResponse.getToken();
+            username = authenticationResponse.getUser().getUsername();
+        }
+    }
+
+    private void handleNoExistenceOfTokenWS() {
+        if (accessToken == null
+                || accessToken.getToken() == null
+                || accessToken.getToken().isEmpty()
+                || accessToken.isExpired()) {
+            goToLogin();
+        } else {
+            handleExistenceOfTokenFB();
+        }
+    }
+
+    private void handleExistenceOfTokenFB() {
+        //pobierz toke WS na podstawie tokena FB
+        AuthService authService = ServiceGenerator.createService(AuthService.class);
+        authService.facebook(accessToken.getToken()).enqueue(new Callback<JwtAuthenticationResponse>() {
+            @Override
+            public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
+                handleAuthenticationData(response);
+                if (token == null || token.isEmpty()) {
+                    goToLogin();
+                } else {
+                    goToApplication();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
+                goToLogin();
+            }
+        });
+    }
+
+    private void goToLogin() {
+        Intent intent = new Intent(TestActivity.this, LoginActivity.class);
+        startActivityForResult(intent, LOGIN_RESULT);
+    }
+
+    private void goToApplication() {
+        prefs.edit().putString("token", token).apply();
+        prefs.edit().putString("username", username).apply();
+        loadMeetings();
 
         setContentView(R.layout.activity_sample_dark_toolbar);
 
@@ -99,44 +182,28 @@ public class TestActivity extends AppCompatActivity {
                 }).build();
     }
 
-    private void handleAuthenticationResponse(Response<JwtAuthenticationResponse> response) {
-        JwtAuthenticationResponse jwtAuthenticationResponse = response.body();
-        if (jwtAuthenticationResponse != null) {
-            String token = jwtAuthenticationResponse.getToken();
-            prefs.edit().putString("token", token).apply();
-            prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
-            loadMeetings(token);
-        } else {
-            onLoginFailed();
-        }
-    }
-
-    private void loadMeetings(String token) {
+    private void loadMeetings() {
         MeetingService meetingService = ServiceGenerator.createService(MeetingService.class);
         meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
             @Override
             public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
                 MeetingManager.getMeetings().addAll(response.body());
-                onLoginSuccess();
+                loadMapFragment();
             }
 
             @Override
             public void onFailure(Call<List<Meeting>> call, Throwable t) {
-                onLoginSuccess();
+                Log.d(TAG, t.getMessage());
+                loadMapFragment();
             }
         });
     }
 
-    private void onLoginSuccess() {
+    private void loadMapFragment() {
         fragment = MapFragment.newInstance();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, fragment);
         ft.commit();
-    }
-
-    public void onLoginFailed() {
-        Intent intent = new Intent(TestActivity.this, LoginActivity.class);
-        startActivityForResult(intent, LOGIN_RESULT);
     }
 
     @Override
@@ -174,14 +241,12 @@ public class TestActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case (LOGIN_RESULT) : {
+        switch (requestCode) {
+            case (LOGIN_RESULT): {
                 if (resultCode == Activity.RESULT_OK) {
-
-                    fragment = MapFragment.newInstance();
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.fragment_container, fragment);
-                    ft.commit();
+                    username = prefs.getString("username", "");
+                    token = prefs.getString("token", "");
+                    goToApplication();
                 }
                 break;
             }
@@ -206,6 +271,11 @@ public class TestActivity extends AppCompatActivity {
             case R.id.menu_2:
                 fragment = new EventsFragment();
                 title = "Events";
+                break;
+            case R.id.action_logout:
+                goToLogin();
+                fragment = null;
+//                result = null;
                 break;
         }
 
@@ -245,5 +315,36 @@ public class TestActivity extends AppCompatActivity {
 
     public Fragment getFragment() {
         return fragment;
+    }
+
+
+    private void asd(AccessToken token) {
+        Bundle args = new Bundle();
+        args.putInt("limit", 150);
+        GraphRequest request = new GraphRequest(token, "/me/friends", args, HttpMethod.GET, new GraphRequest.Callback() {
+            @Override
+            public void onCompleted(GraphResponse graphResponse) {
+                try {
+                    JSONObject graphObject = graphResponse.getJSONObject();
+                    JSONArray dataArray = graphObject.getJSONArray("data");
+                    for (int i = 0; i < dataArray.length(); i++) {
+                        try {
+                            JSONObject object = dataArray.getJSONObject(i);
+                            String str_id = object.getString("id");
+                            String str_name = object.getString("name");
+                            JSONObject picture_obj = object.getJSONObject("picture");
+                            JSONObject data_obj = picture_obj.getJSONObject("data");
+                            String str_url = data_obj.getString("url");
+                            System.out.println(str_id + " " + str_name + " " + str_url);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+        });
+        request.executeAsync();
     }
 }

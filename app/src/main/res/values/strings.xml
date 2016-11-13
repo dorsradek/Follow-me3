@@ -25,4 +25,5 @@
     <string name="location_market_text_hint">Set your Location</string>
     <string name="address_hint">Click to change location</string>
     <string name="marker_image_hint">Marker image</string>
+    <string name="action_logout">Log out</string>
 </resources>
