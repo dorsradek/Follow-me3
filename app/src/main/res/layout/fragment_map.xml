@@ -18,8 +18,8 @@
             android:layout_height="match_parent"
             tools:context="pl.rdors.follow_me3.fragment.MapFragment" />
 
-        <LinearLayout
-            android:id="@+id/container_toolbar"
+        <RelativeLayout
+            android:id="@+id/container_location_toolbar"
             android:layout_width="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
@@ -30,24 +30,43 @@
             android:visibility="invisible">
 
             <ImageView
+                android:id="@+id/icon_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                map:srcCompat="@drawable/ic_menu"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:layout_alignParentLeft="true"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true" />
+
+            <TextView
+                android:id="@+id/text_address"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                android:lines="1"
+                android:text="@string/address_hint"
+                android:textSize="@dimen/font_20"
+                android:textColor="@color/cardview_dark_background"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="30dp" />
+
+            <ImageView
+                android:id="@+id/icon_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 map:srcCompat="@drawable/places_ic_search"
-                android:id="@+id/imageView"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="5dp" />
+                android:layout_marginRight="5dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerHorizontal="false"
+                android:layout_centerInParent="false"
+                android:layout_centerVertical="true" />
 
-            <TextView
-                android:id="@+id/Address"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:lines="1"
-                android:text="@string/address_hint"
-                android:textSize="@dimen/font_20" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/container_location_marker"

@@ -49,10 +49,17 @@ public class ViewElementsManager {
 
         displayListView();
 
-        viewElements.toolbarContainer.setOnClickListener(new View.OnClickListener() {
+        viewElements.iconSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toolbarContainerOnClick();
+                searchAddressElementOnClick();
+            }
+        });
+
+        viewElements.textAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchAddressElementOnClick();
             }
         });
 
@@ -72,9 +79,9 @@ public class ViewElementsManager {
     }
 
 
-    private void toolbarContainerOnClick() {
+    private void searchAddressElementOnClick() {
         try {
-            Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).build(activity);
+            Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY).build(activity);
             activity.startActivityForResult(intent, AppUtils.LocationConstants.REQUEST_CODE_AUTOCOMPLETE);
         } catch (GooglePlayServicesRepairableException e) {
             String message = "Google Play Services is not available: " + GoogleApiAvailability.getInstance().getErrorString(e.getConnectionStatusCode());

@@ -24,8 +24,8 @@ public class LaunchingMap extends MapState implements IApplicationState {
         viewElements.buttonNewMeeting.setVisibility(View.INVISIBLE);
         viewElements.buttonCheckMark.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
-        viewElements.toolbarContainer.setTranslationY(-AppUtils.getHeightPx(activity));
-        viewElements.toolbarContainer.setVisibility(View.INVISIBLE);
+        viewElements.containerLocationToolbar.setTranslationY(-AppUtils.getHeightPx(activity));
+        viewElements.containerLocationToolbar.setVisibility(View.INVISIBLE);
         viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
         viewElements.locationMarkerContainer.setTranslationY(AppUtils.getHeightPx(activity));

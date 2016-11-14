@@ -33,8 +33,8 @@ public class MeetingMap extends MapState {
     public void init() {
         viewElements.buttonCheckMark.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
-        viewElements.toolbarContainer.setTranslationY(-AppUtils.getHeightPx(activity));
-        viewElements.toolbarContainer.setVisibility(View.INVISIBLE);
+        viewElements.containerLocationToolbar.setTranslationY(-AppUtils.getHeightPx(activity));
+        viewElements.containerLocationToolbar.setVisibility(View.INVISIBLE);
         viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
 
@@ -53,9 +53,9 @@ public class MeetingMap extends MapState {
                 .setDuration(ANIMATION_TIME);
 
         //show
-        viewElements.toolbarContainer.setVisibility(View.VISIBLE);
-        viewElements.toolbarContainer.setEnabled(true);
-        viewElements.toolbarContainer.animate()
+        viewElements.containerLocationToolbar.setVisibility(View.VISIBLE);
+        viewElements.containerLocationToolbar.setEnabled(true);
+        viewElements.containerLocationToolbar.animate()
                 .translationY(0)
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
@@ -73,11 +73,11 @@ public class MeetingMap extends MapState {
 
     @Override
     public void animateWhenMapMoveStarted() {
-        viewElements.toolbarContainer.animate()
-                .translationY(-viewElements.toolbarContainer.getHeight() - 20)
+        viewElements.containerLocationToolbar.animate()
+                .translationY(-viewElements.containerLocationToolbar.getHeight() - 20)
                 .alpha(0.0f)
                 .setDuration(viewElements.ANIMATION_TIME);
-        viewElements.toolbarContainer.setVisibility(View.INVISIBLE);
+        viewElements.containerLocationToolbar.setVisibility(View.INVISIBLE);
 
         viewElements.buttonCheckMark.animate()
                 .translationY(viewElements.buttonCheckMark.getHeight() + 20)
@@ -85,15 +85,15 @@ public class MeetingMap extends MapState {
                 .setDuration(viewElements.ANIMATION_TIME);
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
 
-        viewElements.locationAddress.setText("");
+        viewElements.textAddress.setText("");
     }
 
     @Override
     public void animateWhenMapIdle() {
         startIntentServiceOnLocation();
 
-        viewElements.toolbarContainer.setVisibility(View.VISIBLE);
-        viewElements.toolbarContainer.animate()
+        viewElements.containerLocationToolbar.setVisibility(View.VISIBLE);
+        viewElements.containerLocationToolbar.animate()
                 .translationY(0)
                 .alpha(1.0f)
                 .setDuration(viewElements.ANIMATION_TIME);

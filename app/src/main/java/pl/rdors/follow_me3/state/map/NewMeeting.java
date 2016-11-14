@@ -34,7 +34,7 @@ public class NewMeeting extends MapState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
 
-        viewElements.toolbarContainer.setEnabled(false);
+        viewElements.containerLocationToolbar.setEnabled(false);
         viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
 
         enable(false);

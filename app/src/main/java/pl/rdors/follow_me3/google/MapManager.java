@@ -89,6 +89,7 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
         googleMap.getUiSettings().setCompassEnabled(false);
         googleMap.getUiSettings().setRotateGesturesEnabled(false);
         googleMap.getUiSettings().setTiltGesturesEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
 
         this.googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
