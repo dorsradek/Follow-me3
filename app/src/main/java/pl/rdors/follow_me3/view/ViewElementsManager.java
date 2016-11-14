@@ -23,7 +23,6 @@ import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
 import pl.rdors.follow_me3.rest.model.Meeting;
-import pl.rdors.follow_me3.rest.model.MeetingPlace;
 import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.rest.model.User;
 import pl.rdors.follow_me3.rest.service.MeetingService;
@@ -113,10 +112,7 @@ public class ViewElementsManager {
             place.setName("aww");
             place.setX(latLng.latitude);
             place.setY(latLng.longitude);
-            MeetingPlace meetingPlace = new MeetingPlace();
-            meetingPlace.setPlace(place);
-            meetingPlace.setMeeting(m);
-            m.getMeetingPlaces().add(meetingPlace);
+            m.setPlace(place);
 
             //TODO: repair adding new meeting
 

@@ -12,7 +12,7 @@ public class Meeting {
     private String name;
     private String lastUpdate;
     private boolean active;
-    private List<MeetingPlace> meetingPlaces = new ArrayList<>();
+    private Place place;
     private List<MeetingUser> meetingUsers = new ArrayList<>();
 
     public Long getId() {
@@ -47,12 +47,12 @@ public class Meeting {
         this.active = active;
     }
 
-    public List<MeetingPlace> getMeetingPlaces() {
-        return meetingPlaces;
+    public Place getPlace() {
+        return place;
     }
 
-    public void setMeetingPlaces(List<MeetingPlace> meetingPlaces) {
-        this.meetingPlaces = meetingPlaces;
+    public void setPlace(Place place) {
+        this.place = place;
     }
 
     public List<MeetingUser> getMeetingUsers() {

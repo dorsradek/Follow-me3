@@ -30,7 +30,6 @@ import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.rest.model.Meeting;
-import pl.rdors.follow_me3.rest.model.MeetingPlace;
 import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.utils.AppUtils;
@@ -133,20 +132,18 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
             bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         }
         for (Meeting meeting : MeetingManager.getMeetings()) {
-            for (MeetingPlace meetingPlace : meeting.getMeetingPlaces()) {
-                Place place = meetingPlace.getPlace();
+            Place place = meeting.getPlace();
 
-                Location location = new Location("");
-                location.setLatitude(place.getX());
-                location.setLongitude(place.getY());
+            Location location = new Location("");
+            location.setLatitude(place.getX());
+            location.setLongitude(place.getY());
 
-                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
+            bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
 
-                MarkerOptions marker = new MarkerOptions()
-                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                        .title(meeting.getName());
-                googleMap.addMarker(marker);
-            }
+            MarkerOptions marker = new MarkerOptions()
+                    .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                    .title(meeting.getName());
+            googleMap.addMarker(marker);
         }
         try {
             LatLngBounds bounds = bld.build();
