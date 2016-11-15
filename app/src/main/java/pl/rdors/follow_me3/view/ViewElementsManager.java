@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -13,18 +12,12 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import okhttp3.ResponseBody;
-import pl.rdors.follow_me3.MyCustomAdapter;
-import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
 import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.model.Place;
-import pl.rdors.follow_me3.rest.model.User;
 import pl.rdors.follow_me3.rest.service.MeetingService;
 import pl.rdors.follow_me3.state.map.MeetingMap;
 import pl.rdors.follow_me3.state.map.NewMeeting;
@@ -45,8 +38,6 @@ public class ViewElementsManager {
     public ViewElementsManager(TestActivity activity, ViewElements viewElements) {
         this.activity = activity;
         this.viewElements = viewElements;
-
-        displayListView();
 
         viewElements.iconSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,65 +122,6 @@ public class ViewElementsManager {
                 }
             });
         }
-    }
-
-
-    MyCustomAdapter dataAdapter = null;
-
-    private void displayListView() {
-
-        //Array list of countries
-        List<User> countryList = new ArrayList<>();
-        User country = new User("AFG");
-        countryList.add(country);
-        country = new User("ALB");
-        countryList.add(country);
-        country = new User("DZA");
-        countryList.add(country);
-        country = new User("ASM");
-        countryList.add(country);
-        country = new User("AND");
-        countryList.add(country);
-        country = new User("AGO");
-        countryList.add(country);
-        country = new User("DZA");
-        countryList.add(country);
-        country = new User("ASM");
-        countryList.add(country);
-        country = new User("AND");
-        countryList.add(country);
-        country = new User("AGO");
-        countryList.add(country);
-        country = new User("AIA");
-        countryList.add(country);
-        country = new User("DZA");
-        countryList.add(country);
-        country = new User("ASM");
-        countryList.add(country);
-        country = new User("AND");
-        countryList.add(country);
-        country = new User("AGO");
-        countryList.add(country);
-        country = new User("AIA");
-        countryList.add(country);
-
-        //create an ArrayAdaptar from the String Array
-        dataAdapter = new MyCustomAdapter(activity, R.layout.list_item, countryList);
-        // Assign adapter to ListView
-        viewElements.meetingContactsListView.setAdapter(dataAdapter);
-
-
-        viewElements.meetingContactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // When clicked, show a toast with the TextView text
-                User country = (User) parent.getItemAtPosition(position);
-                Toast.makeText(activity,
-                        "Clicked on Row: " + country.getUsername(),
-                        Toast.LENGTH_LONG).show();
-            }
-        });
-
     }
 
 }

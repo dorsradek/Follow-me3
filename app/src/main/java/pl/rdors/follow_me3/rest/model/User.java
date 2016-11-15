@@ -7,6 +7,7 @@ public class User {
 
     private Long id;
     private String username;
+    private boolean selected;
 
     public User() {
     }
@@ -31,4 +32,11 @@ public class User {
         this.username = username;
     }
 
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
 }

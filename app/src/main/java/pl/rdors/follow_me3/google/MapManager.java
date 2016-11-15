@@ -133,17 +133,18 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
         }
         for (Meeting meeting : MeetingManager.getMeetings()) {
             Place place = meeting.getPlace();
+            if (place != null) {
+                Location location = new Location("");
+                location.setLatitude(place.getX());
+                location.setLongitude(place.getY());
 
-            Location location = new Location("");
-            location.setLatitude(place.getX());
-            location.setLongitude(place.getY());
+                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
 
-            bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
-
-            MarkerOptions marker = new MarkerOptions()
-                    .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                    .title(meeting.getName());
-            googleMap.addMarker(marker);
+                MarkerOptions marker = new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .title(meeting.getName());
+                googleMap.addMarker(marker);
+            }
         }
         try {
             LatLngBounds bounds = bld.build();

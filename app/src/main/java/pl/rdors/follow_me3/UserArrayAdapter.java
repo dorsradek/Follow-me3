@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -15,20 +14,19 @@ import java.util.List;
 
 import pl.rdors.follow_me3.rest.model.User;
 
-public class MyCustomAdapter extends ArrayAdapter<User> {
+public class UserArrayAdapter extends ArrayAdapter<User> {
 
-    private List<User> countryList;
+    private List<User> users;
     private Context context;
 
-    public MyCustomAdapter(Context context, int textViewResourceId, List<User> countryList) {
-        super(context, textViewResourceId, countryList);
+    public UserArrayAdapter(Context context, int textViewResourceId, List<User> users) {
+        super(context, textViewResourceId, users);
         this.context = context;
-        this.countryList = new ArrayList<User>();
-        this.countryList.addAll(countryList);
+        this.users = new ArrayList<>();
+        this.users.addAll(users);
     }
 
     private class ViewHolder {
-        TextView code;
         CheckBox name;
     }
 
@@ -44,30 +42,28 @@ public class MyCustomAdapter extends ArrayAdapter<User> {
             convertView = vi.inflate(R.layout.list_item, null);
 
             holder = new ViewHolder();
-            holder.code = (TextView) convertView.findViewById(R.id.label);
             holder.name = (CheckBox) convertView.findViewById(R.id.check);
             convertView.setTag(holder);
 
             holder.name.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     CheckBox cb = (CheckBox) v;
-                    User country = (User) cb.getTag();
+                    User user = (User) cb.getTag();
                     Toast.makeText(context,
                             "Clicked on Checkbox: " + cb.getText() +
                                     " is " + cb.isChecked(),
                             Toast.LENGTH_LONG).show();
-                    //country.setSelected(cb.isChecked());
+                    user.setSelected(cb.isChecked());
                 }
             });
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        User country = countryList.get(position);
-        holder.code.setText(" (" + country.getUsername() + ")");
-        holder.name.setText(country.getUsername());
+        User user = users.get(position);
+        holder.name.setText(user.getUsername());
         holder.name.setChecked(false);
-        holder.name.setTag(country);
+        holder.name.setTag(user);
 
         return convertView;
 
