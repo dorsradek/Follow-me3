@@ -96,31 +96,31 @@ public class ViewElementsManager {
             activity.setApplicationState(new NewMeeting(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
             activity.getApplicationState().init();
 
-            LatLng latLng = ((MapFragment) activity.getFragment()).getMapManager().latLngCenter;
-            Meeting m = new Meeting();
-            m.setName("ASD");
-            Place place = new Place();
-            place.setName("aww");
-            place.setX(latLng.latitude);
-            place.setY(latLng.longitude);
-            m.setPlace(place);
-
-            //TODO: repair adding new meeting
-
-            SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
-            String token = prefs.getString("token", "");
-            Call<ResponseBody> call = ServiceGenerator.createService(MeetingService.class).create(m, token);
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    System.out.println(response.message());
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    System.out.println(t.getMessage());
-                }
-            });
+//            LatLng latLng = ((MapFragment) activity.getFragment()).getMapManager().latLngCenter;
+//            Meeting m = new Meeting();
+//            m.setName("ASD");
+//            Place place = new Place();
+//            place.setName("aww");
+//            place.setX(latLng.latitude);
+//            place.setY(latLng.longitude);
+//            m.setPlace(place);
+//
+//            //TODO: repair adding new meeting
+//
+//            SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
+//            String token = prefs.getString("token", "");
+//            Call<ResponseBody> call = ServiceGenerator.createService(MeetingService.class).create(m, token);
+//            call.enqueue(new Callback<ResponseBody>() {
+//                @Override
+//                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                    System.out.println(response.message());
+//                }
+//
+//                @Override
+//                public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                    System.out.println(t.getMessage());
+//                }
+//            });
         }
     }
 
