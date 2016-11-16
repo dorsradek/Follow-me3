@@ -24,8 +24,8 @@ import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.model.MeetingUser;
 import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.rest.model.User;
+import pl.rdors.follow_me3.rest.service.FriendshipService;
 import pl.rdors.follow_me3.rest.service.MeetingService;
-import pl.rdors.follow_me3.rest.service.UserService;
 import pl.rdors.follow_me3.view.ViewElements;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -83,9 +83,7 @@ public class NewMeeting extends MapState {
         SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
         String token = prefs.getString("token", "");
 
-        Call<List<User>> call = ServiceGenerator
-                .createService(UserService.class)
-                .findAll(token);
+        Call<List<User>> call = ServiceGenerator.createService(FriendshipService.class).findAllFriends(token);
 
         call.enqueue(new Callback<List<User>>() {
             @Override
