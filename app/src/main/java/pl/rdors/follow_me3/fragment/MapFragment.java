@@ -45,7 +45,7 @@ public class MapFragment extends Fragment implements IOnActivityResult {
 
     public static MapFragment newInstance() {
         //if (fragment == null) {
-            fragment = new MapFragment();
+        fragment = new MapFragment();
         //}
         return fragment;
     }
@@ -96,26 +96,12 @@ public class MapFragment extends Fragment implements IOnActivityResult {
     @Override
     public void onStart() {
         super.onStart();
-        try {
-            mapManager.getGoogleApiClient().connect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        try {
-
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        }
-        if (mapManager.getGoogleApiClient() != null && mapManager.getGoogleApiClient().isConnected()) {
-            mapManager.getGoogleApiClient().disconnect();
-        }
     }
-
 
     @Override
     public void apply(int requestCode, int resultCode, Intent data) {

@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import pl.rdors.follow_me3.LocationProvider;
 import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.fragment.MapFragment;
@@ -119,7 +120,7 @@ public class Map extends MapState {
     public void focusOnMeetings() {
         mapManager.getGoogleMap().clear();
         LatLngBounds.Builder bld = new LatLngBounds.Builder();
-        Location lastLocation = getMyLocation();
+        Location lastLocation = LocationProvider.getInstance().getCurrentLocation();
         if (isCorrectLocation(lastLocation)) {
             bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         }
@@ -151,19 +152,6 @@ public class Map extends MapState {
         if (activity.getFragment() instanceof pl.rdors.follow_me3.fragment.MapFragment) {
             ((MapFragment) activity.getFragment()).progressDialog.dismiss();
         }
-    }
-
-    private Location getMyLocation() {
-        //TODO: get last location from shared preferences??
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            AppUtils.requestLocationPermission(activity);
-            Location location = new Location("");
-            location.setLongitude(0);
-            location.setLatitude(0);
-            return location;
-        }
-        return LocationServices.FusedLocationApi.getLastLocation(mapManager.getGoogleApiClient());
     }
 
     private boolean isCorrectLocation(Location location) {

@@ -10,6 +10,6 @@ import retrofit2.http.Header;
 public interface FriendshipService {
 
     @GET("/friends")
-    Call<List<User>> findAllFriends(@Header("Authorization") String token);
+    Call<List<User>> findAll(@Header("Authorization") String token);
 
 }

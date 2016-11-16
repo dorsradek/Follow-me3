@@ -83,7 +83,7 @@ public class NewMeeting extends MapState {
         SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
         String token = prefs.getString("token", "");
 
-        Call<List<User>> call = ServiceGenerator.createService(FriendshipService.class).findAllFriends(token);
+        Call<List<User>> call = ServiceGenerator.createService(FriendshipService.class).findAll(token);
 
         call.enqueue(new Callback<List<User>>() {
             @Override

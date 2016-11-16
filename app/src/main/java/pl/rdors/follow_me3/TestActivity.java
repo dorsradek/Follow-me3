@@ -1,6 +1,8 @@
 package pl.rdors.follow_me3;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,6 +27,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.List;
 
 import pl.rdors.follow_me3.fragment.EventsFragment;
@@ -157,6 +160,11 @@ public class TestActivity extends AppCompatActivity {
     private void goToApplication() {
         prefs.edit().putString("token", token).apply();
         prefs.edit().putString("username", username).apply();
+
+        startLocationTracker();
+        LocationProvider locationProvider = LocationProvider.getInstance();
+        locationProvider.configureIfNeeded(this);
+
         loadMeetings();
 
         setContentView(R.layout.activity_sample_dark_toolbar);
@@ -178,6 +186,15 @@ public class TestActivity extends AppCompatActivity {
                         return false;
                     }
                 }).build();
+    }
+
+    private void startLocationTracker() {
+        // Configure the LocationTracker's broadcast receiver to run every 5 minutes.
+        Intent intent = new Intent(this, LocationTracker.class);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(),
+                LocationProvider.FIVE_MINUTES, pendingIntent);
     }
 
     private void loadMeetings() {
