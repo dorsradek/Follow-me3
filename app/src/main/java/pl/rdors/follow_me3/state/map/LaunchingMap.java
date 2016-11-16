@@ -26,8 +26,8 @@ public class LaunchingMap extends MapState implements IApplicationState {
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
         viewElements.containerLocationToolbar.setTranslationY(-AppUtils.getHeightPx(activity));
         viewElements.containerLocationToolbar.setVisibility(View.INVISIBLE);
-        viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
-        viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
+        viewElements.containerNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.containerNewMeeting.setVisibility(View.INVISIBLE);
         viewElements.locationMarkerContainer.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
     }
@@ -50,4 +50,8 @@ public class LaunchingMap extends MapState implements IApplicationState {
 
     }
 
+    @Override
+    public void buttonCheckMarkOnClick() {
+
+    }
 }

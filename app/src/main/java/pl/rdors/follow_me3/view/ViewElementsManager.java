@@ -35,7 +35,7 @@ public class ViewElementsManager {
     private TestActivity activity;
     private ViewElements viewElements;
 
-    public ViewElementsManager(TestActivity activity, ViewElements viewElements) {
+    public ViewElementsManager(final TestActivity activity, final ViewElements viewElements) {
         this.activity = activity;
         this.viewElements = viewElements;
 
@@ -56,6 +56,7 @@ public class ViewElementsManager {
         viewElements.buttonCheckMark.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activity.getApplicationState().buttonCheckMarkOnClick();
                 buttonCheckMarkOnClick();
             }
         });

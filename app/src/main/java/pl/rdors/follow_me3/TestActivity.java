@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -14,12 +15,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.AccessToken;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.appevents.AppEventsLogger;
-import com.facebook.login.LoginManager;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
@@ -187,6 +185,7 @@ public class TestActivity extends AppCompatActivity {
         meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
             @Override
             public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
+                MeetingManager.getMeetings().clear();
                 MeetingManager.getMeetings().addAll(response.body());
                 loadMapFragment();
             }
@@ -200,10 +199,14 @@ public class TestActivity extends AppCompatActivity {
     }
 
     private void loadMapFragment() {
-        fragment = MapFragment.newInstance();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_container, fragment);
-        ft.commit();
+        new Handler().post(new Runnable() {
+            public void run() {
+                fragment = MapFragment.newInstance();
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.fragment_container, fragment);
+                ft.commit();
+            }
+        });
     }
 
     @Override
@@ -275,7 +278,6 @@ public class TestActivity extends AppCompatActivity {
             case R.id.action_logout:
                 goToLogin();
                 fragment = null;
-//                result = null;
                 break;
         }
 
@@ -295,13 +297,13 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
+//        super.onSaveInstanceState(savedInstanceState);
         Log.d(TAG, "onSaveInstanceState");
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
+//        super.onRestoreInstanceState(savedInstanceState);
         Log.d(TAG, "onRestoreInstanceState");
     }
 

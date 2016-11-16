@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.view.View;
 
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.intentservice.AddressResultReceiver;
 import pl.rdors.follow_me3.intentservice.IntentServiceTool;
@@ -35,8 +36,8 @@ public class MeetingMap extends MapState {
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
         viewElements.containerLocationToolbar.setTranslationY(-AppUtils.getHeightPx(activity));
         viewElements.containerLocationToolbar.setVisibility(View.INVISIBLE);
-        viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
-        viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
+        viewElements.containerNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.containerNewMeeting.setVisibility(View.INVISIBLE);
 
         //hide
         viewElements.buttonNewMeeting.animate()
@@ -123,5 +124,13 @@ public class MeetingMap extends MapState {
         activity.getApplicationState().init();
     }
 
+    @Override
+    public void buttonCheckMarkOnClick() {
+        if (activity.getFragment() != null
+                && activity.getFragment() instanceof MapFragment) {
+            activity.setApplicationState(new NewMeeting(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
+            activity.getApplicationState().init();
+        }
+    }
 
 }

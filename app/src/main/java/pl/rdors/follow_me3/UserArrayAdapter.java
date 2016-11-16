@@ -69,4 +69,7 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
 
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
 }

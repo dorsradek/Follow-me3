@@ -75,9 +75,6 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
             Log.d(TAG, "Map style success!");
         }
 
-        activity.setApplicationState(new Map(activity, this, viewElements));
-        activity.getApplicationState().init();
-
         if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             AppUtils.requestLocationPermission(activity);
@@ -106,73 +103,61 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
             }
         });
 
-        focusOnMeetings();
+        activity.setApplicationState(new Map(activity, this, viewElements));
+        activity.getApplicationState().init();
+
+//        focusOnMeetings();
     }
 
-
-//    public void changeLocationOnMap(Location location) {
-//        if (googleMap != null) {
-//            latLngCenter = new LatLng(location.getLatitude(), location.getLongitude());
-//            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLngCenter).zoom(17f).build();
+//    private void focusOnMeetings() {
+//        googleMap.clear();
+//        LatLngBounds.Builder bld = new LatLngBounds.Builder();
+//        Location lastLocation = getMyLocation();
+//        if (isCorrectLocation(lastLocation)) {
+//            bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+//        }
+//        for (Meeting meeting : MeetingManager.getMeetings()) {
+//            Place place = meeting.getPlace();
+//            if (place != null) {
+//                Location location = new Location("");
+//                location.setLatitude(place.getX());
+//                location.setLongitude(place.getY());
 //
-//            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
 //
-//            intentServiceTool.startIntentService(location);
-//        } else {
-//            Toast.makeText(activity, "Sorry! unable to create maps", Toast.LENGTH_SHORT).show();
+//                MarkerOptions marker = new MarkerOptions()
+//                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+//                        .title(meeting.getName());
+//                googleMap.addMarker(marker);
+//            }
+//        }
+//        try {
+//            LatLngBounds bounds = bld.build();
+//
+//            //TODO: padding deppends on location marker size
+//            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
+//            googleMap.animateCamera(cameraUpdate);
+//        } catch (Exception e) {
+//            Log.d(TAG, e.getMessage());
 //        }
 //
+//        if (activity.getFragment() instanceof pl.rdors.follow_me3.fragment.MapFragment) {
+//            ((MapFragment) activity.getFragment()).progressDialog.dismiss();
+//        }
 //    }
-
-    public void focusOnMeetings() {
-        googleMap.clear();
-        LatLngBounds.Builder bld = new LatLngBounds.Builder();
-        Location lastLocation = getMyLocation();
-        if (isCorrectLocation(lastLocation)) {
-            bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
-        }
-        for (Meeting meeting : MeetingManager.getMeetings()) {
-            Place place = meeting.getPlace();
-            if (place != null) {
-                Location location = new Location("");
-                location.setLatitude(place.getX());
-                location.setLongitude(place.getY());
-
-                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
-
-                MarkerOptions marker = new MarkerOptions()
-                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                        .title(meeting.getName());
-                googleMap.addMarker(marker);
-            }
-        }
-        try {
-            LatLngBounds bounds = bld.build();
-
-            //TODO: padding deppends on location marker size
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
-            googleMap.animateCamera(cameraUpdate);
-        } catch (Exception e) {
-            Log.d(TAG, e.getMessage());
-        }
-
-        if (activity.getFragment() instanceof pl.rdors.follow_me3.fragment.MapFragment) {
-            ((MapFragment) activity.getFragment()).progressDialog.dismiss();
-        }
-    }
-
-    private Location getMyLocation() {
-        //TODO: get last location from shared preferences??
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            AppUtils.requestLocationPermission(activity);
-            Location location = new Location("");
-            location.setLongitude(0);
-            location.setLatitude(0);
-            return location;
-        }
-        return LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-    }
+//
+//    private Location getMyLocation() {
+//        //TODO: get last location from shared preferences??
+//        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            AppUtils.requestLocationPermission(activity);
+//            Location location = new Location("");
+//            location.setLongitude(0);
+//            location.setLatitude(0);
+//            return location;
+//        }
+//        return LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+//    }
 
     private synchronized void buildGoogleApiClient() {
         googleApiClient = new GoogleApiClient.Builder(activity)
@@ -227,11 +212,11 @@ public class MapManager implements OnMapReadyCallback, GoogleApiClient.Connectio
     public GoogleMap getGoogleMap() {
         return googleMap;
     }
-
-    private boolean isCorrectLocation(Location location) {
-        return location != null &&
-                (location.getLongitude() != 0 || location.getLatitude() != 0);
-    }
+//
+//    private boolean isCorrectLocation(Location location) {
+//        return location != null &&
+//                (location.getLongitude() != 0 || location.getLatitude() != 0);
+//    }
 
     private Location createLocation(CameraPosition cameraPosition) {
         LatLng latLng = cameraPosition.target;

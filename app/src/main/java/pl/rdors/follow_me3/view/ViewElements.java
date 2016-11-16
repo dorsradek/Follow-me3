@@ -21,9 +21,11 @@ public class ViewElements {
     public TextView locationMarkerText;
     public ImageButton buttonNewMeeting;
     public ImageButton buttonCheckMark;
-    public LinearLayout newMeetingContainer;
     public LinearLayout locationMarkerContainer;
     public ListView meetingContactsListView;
+
+    public LinearLayout containerNewMeeting;
+    public TextView textNewMeetingName;
 
     public RelativeLayout containerLocationToolbar;
     public TextView textAddress;
@@ -34,9 +36,11 @@ public class ViewElements {
         locationMarkerText = (TextView) view.findViewById(R.id.locationMarkertext);
         buttonNewMeeting = (ImageButton) view.findViewById(R.id.button_new_meeting);
         buttonCheckMark = (ImageButton) view.findViewById(R.id.button_check_mark);
-        newMeetingContainer = (LinearLayout) view.findViewById(R.id.container_new_meeting);
         locationMarkerContainer = (LinearLayout) view.findViewById(R.id.container_location_marker);
         meetingContactsListView = (ListView) view.findViewById(R.id.list_meeting_contacts);
+
+        containerNewMeeting = (LinearLayout) view.findViewById(R.id.container_new_meeting);
+        textNewMeetingName = (TextView) view.findViewById(R.id.text_new_meeting_name);
 
         containerLocationToolbar = (RelativeLayout) view.findViewById(R.id.container_location_toolbar);
         textAddress = (TextView) view.findViewById(R.id.text_address);

@@ -126,46 +126,46 @@
             android:layout_marginBottom="20dp"
             android:visibility="visible" />
 
-        <LinearLayout
-            android:id="@+id/container_new_meeting"
-            android:orientation="vertical"
+    </FrameLayout>
+
+
+    <LinearLayout
+        android:id="@+id/container_new_meeting"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@android:color/white"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:layout_gravity="top"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="90dp">
+
+        <EditText
             android:layout_width="match_parent"
-            android:layout_marginBottom="10dp"
+            android:layout_height="40dp"
+            android:ems="10"
+            android:id="@+id/text_new_meeting_name"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="@android:color/white"
-            android:layout_height="match_parent"
-            android:visibility="invisible"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="left|center_vertical"
+            android:hint="Meeting name"
+            android:inputType="textPersonName" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:choiceMode="multipleChoice"
+            android:id="@+id/list_meeting_contacts"
             android:layout_gravity="top"
-            android:clipToPadding="false"
-            android:layout_marginTop="60dp">
+            android:layout_height="100dp" />
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:ems="10"
-                android:id="@+id/editText"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:gravity="left|center_vertical"
-                android:hint="Meeting name"
-                android:inputType="textPersonName" />
-
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_marginRight="10dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="5dp"
-                android:choiceMode="multipleChoice"
-                android:id="@+id/list_meeting_contacts"
-                android:layout_gravity="top"
-                android:layout_height="match_parent" />
-
-        </LinearLayout>
-
-    </FrameLayout>
+    </LinearLayout>
 
 </RelativeLayout>

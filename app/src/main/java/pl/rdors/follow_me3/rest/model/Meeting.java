@@ -13,7 +13,7 @@ public class Meeting {
     private String lastUpdate;
     private boolean active;
     private Place place;
-    private List<MeetingUser> meetingUsers = new ArrayList<>();
+    private List<MeetingUser> meetingUsers;
 
     public Long getId() {
         return id;
@@ -56,6 +56,9 @@ public class Meeting {
     }
 
     public List<MeetingUser> getMeetingUsers() {
+        if (meetingUsers == null) {
+            meetingUsers = new ArrayList<>();
+        }
         return meetingUsers;
     }
 

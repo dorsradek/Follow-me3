@@ -1,18 +1,30 @@
 package pl.rdors.follow_me3.state.map;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
+import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.UserArrayAdapter;
+import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
+import pl.rdors.follow_me3.rest.model.Meeting;
+import pl.rdors.follow_me3.rest.model.MeetingUser;
+import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.rest.model.User;
+import pl.rdors.follow_me3.rest.service.MeetingService;
 import pl.rdors.follow_me3.rest.service.UserService;
 import pl.rdors.follow_me3.view.ViewElements;
 import retrofit2.Call;
@@ -30,6 +42,7 @@ public class NewMeeting extends MapState {
     private static final String TAG = "NewMeeting";
 
     UserArrayAdapter dataAdapter;
+    ProgressDialog progressDialog;
 
     public NewMeeting(TestActivity activity, MapManager mapManager, ViewElements viewElements) {
         super(activity, mapManager, viewElements);
@@ -38,17 +51,23 @@ public class NewMeeting extends MapState {
     @Override
     public void init() {
 
+        progressDialog = new ProgressDialog(activity, R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Creating...");
+        progressDialog.setCanceledOnTouchOutside(false);
+
         initUsers();
-        //hide
-        viewElements.buttonCheckMark.animate()
-                .translationY(viewElements.buttonCheckMark.getHeight() + 20)
-                .alpha(0.0f)
-                .setDuration(ANIMATION_TIME);
-        viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
 
         //show
-        viewElements.newMeetingContainer.setVisibility(View.VISIBLE);
-        viewElements.newMeetingContainer.animate()
+        viewElements.containerNewMeeting.setVisibility(View.VISIBLE);
+        viewElements.containerNewMeeting.animate()
+                .translationY(0)
+                .alpha(1.0f)
+                .setDuration(ANIMATION_TIME);
+
+        //show
+        viewElements.buttonCheckMark.setVisibility(View.VISIBLE);
+        viewElements.buttonCheckMark.animate()
                 .translationY(0)
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
@@ -102,6 +121,91 @@ public class NewMeeting extends MapState {
     public void back() {
         activity.setApplicationState(new MeetingMap(activity, mapManager, viewElements));
         activity.getApplicationState().init();
+    }
+
+
+    @Override
+    public void buttonCheckMarkOnClick() {
+        if (activity.getFragment() != null
+                && activity.getFragment() instanceof MapFragment) {
+
+            progressDialog.show();
+            LatLng latLng = ((MapFragment) activity.getFragment()).getMapManager().latLngCenter;
+            Meeting m = new Meeting();
+            m.setName(viewElements.textNewMeetingName.getText().toString());
+            Place place = new Place();
+            place.setX(latLng.latitude);
+            place.setY(latLng.longitude);
+            place.setName(viewElements.textAddress.getText().toString());
+            m.setPlace(place);
+
+            final List<User> users = dataAdapter.getUsers();
+            for (User user : users) {
+                if (user.isSelected()) {
+                    MeetingUser meetingUser = new MeetingUser();
+                    meetingUser.setUser(user);
+                    m.getMeetingUsers().add(meetingUser);
+                }
+            }
+
+            SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
+            final String token = prefs.getString("token", "");
+            Call<ResponseBody> call = ServiceGenerator.createService(MeetingService.class).create(m, token);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    MeetingService meetingService = ServiceGenerator.createService(MeetingService.class);
+                    meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
+                        @Override
+                        public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
+                            MeetingManager.getMeetings().clear();
+                            MeetingManager.getMeetings().addAll(response.body());
+
+                            View view = activity.getCurrentFocus();
+                            if (view != null) {
+                                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            }
+
+                            for (User user : users) {
+                                user.setSelected(false);
+                            }
+                            viewElements.textNewMeetingName.setText("");
+
+                            activity.setApplicationState(new Map(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
+                            activity.getApplicationState().init();
+                            progressDialog.dismiss();
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<Meeting>> call, Throwable t) {
+                            Log.d(TAG, t.getMessage());
+
+                            View view = activity.getCurrentFocus();
+                            if (view != null) {
+                                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            }
+                            for (User user : users) {
+                                user.setSelected(false);
+                            }
+                            viewElements.textNewMeetingName.setText("");
+
+                            activity.setApplicationState(new Map(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
+                            activity.getApplicationState().init();
+                            progressDialog.dismiss();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.d(TAG, t.getMessage());
+                    progressDialog.dismiss();
+                    Toast.makeText(activity, "Failed", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
 }

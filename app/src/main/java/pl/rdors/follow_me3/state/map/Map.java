@@ -1,9 +1,25 @@
 package pl.rdors.follow_me3.state.map;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.google.MapManager;
+import pl.rdors.follow_me3.rest.model.Meeting;
+import pl.rdors.follow_me3.rest.model.Place;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
@@ -14,6 +30,8 @@ import static pl.rdors.follow_me3.view.ViewElements.ANIMATION_TIME;
  */
 
 public class Map extends MapState {
+
+    public static String TAG = "Map";
 
     public Map(TestActivity activity, MapManager mapManager, ViewElements viewElements) {
         super(activity, mapManager, viewElements);
@@ -48,8 +66,8 @@ public class Map extends MapState {
         viewElements.buttonCheckMark.setVisibility(View.INVISIBLE);
         viewElements.containerLocationToolbar.setTranslationY(-AppUtils.getHeightPx(activity));
         viewElements.containerLocationToolbar.setVisibility(View.INVISIBLE);
-        viewElements.newMeetingContainer.setTranslationY(AppUtils.getHeightPx(activity));
-        viewElements.newMeetingContainer.setVisibility(View.INVISIBLE);
+        viewElements.containerNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
+        viewElements.containerNewMeeting.setVisibility(View.INVISIBLE);
         viewElements.locationMarkerContainer.setVisibility(View.INVISIBLE);
 
         viewElements.buttonNewMeeting.setVisibility(View.VISIBLE);
@@ -58,23 +76,13 @@ public class Map extends MapState {
                 .alpha(1.0f)
                 .setDuration(ANIMATION_TIME);
 
-//        viewElements.toolbarContainer.setVisibility(View.VISIBLE);
-//        viewElements.toolbarContainer.setEnabled(true);
-//        viewElements.toolbarContainer.animate()
-//                .translationY(0)
-//                .alpha(1.0f)
-//                .setDuration(ANIMATION_TIME);
-
         enable(true);
+
+        focusOnMeetings();
     }
 
     @Override
     public void animateWhenMapMoveStarted() {
-//        viewElements.toolbarContainer.animate()
-//                .translationY(-viewElements.toolbarContainer.getHeight() - 20)
-//                .alpha(0.0f)
-//                .setDuration(ANIMATION_TIME);
-//        viewElements.toolbarContainer.setVisibility(View.INVISIBLE);
 
         viewElements.buttonNewMeeting.animate()
                 .translationY(viewElements.buttonNewMeeting.getHeight() + 20)
@@ -85,11 +93,6 @@ public class Map extends MapState {
 
     @Override
     public void animateWhenMapIdle() {
-//        viewElements.toolbarContainer.setVisibility(View.VISIBLE);
-//        viewElements.toolbarContainer.animate()
-//                .translationY(0)
-//                .alpha(1.0f)
-//                .setDuration(ANIMATION_TIME);
 
         viewElements.buttonNewMeeting.setVisibility(View.VISIBLE);
         viewElements.buttonNewMeeting.animate()
@@ -106,6 +109,66 @@ public class Map extends MapState {
     @Override
     public void back() {
 
+    }
+
+    @Override
+    public void buttonCheckMarkOnClick() {
+
+    }
+
+    public void focusOnMeetings() {
+        mapManager.getGoogleMap().clear();
+        LatLngBounds.Builder bld = new LatLngBounds.Builder();
+        Location lastLocation = getMyLocation();
+        if (isCorrectLocation(lastLocation)) {
+            bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+        }
+        for (Meeting meeting : MeetingManager.getMeetings()) {
+            Place place = meeting.getPlace();
+            if (place != null) {
+                Location location = new Location("");
+                location.setLatitude(place.getX());
+                location.setLongitude(place.getY());
+
+                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
+
+                MarkerOptions marker = new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                        .title(meeting.getName());
+                mapManager.getGoogleMap().addMarker(marker);
+            }
+        }
+        try {
+            LatLngBounds bounds = bld.build();
+
+            //TODO: padding deppends on location marker size
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 30);
+            mapManager.getGoogleMap().animateCamera(cameraUpdate);
+        } catch (Exception e) {
+            Log.d(TAG, e.getMessage());
+        }
+
+        if (activity.getFragment() instanceof pl.rdors.follow_me3.fragment.MapFragment) {
+            ((MapFragment) activity.getFragment()).progressDialog.dismiss();
+        }
+    }
+
+    private Location getMyLocation() {
+        //TODO: get last location from shared preferences??
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            AppUtils.requestLocationPermission(activity);
+            Location location = new Location("");
+            location.setLongitude(0);
+            location.setLatitude(0);
+            return location;
+        }
+        return LocationServices.FusedLocationApi.getLastLocation(mapManager.getGoogleApiClient());
+    }
+
+    private boolean isCorrectLocation(Location location) {
+        return location != null &&
+                (location.getLongitude() != 0 || location.getLatitude() != 0);
     }
 
 }

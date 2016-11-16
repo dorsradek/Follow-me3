@@ -8,4 +8,5 @@ import pl.rdors.follow_me3.state.map.IMapMovable;
 
 public interface IApplicationState extends IViewInitializable, IMapMovable, IBackPressable, IAbleToEnable {
 
+    void buttonCheckMarkOnClick();
 }
