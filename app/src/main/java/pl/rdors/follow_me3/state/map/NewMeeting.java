@@ -156,11 +156,8 @@ public class NewMeeting extends MapState {
                     meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
                         @Override
                         public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
-                            MeetingManager.getMeetings().clear();
                             for (Meeting meeting : response.body()) {
-                                if (meeting.getPlace() != null) {
-                                    MeetingManager.getMeetings().add(meeting);
-                                }
+                                MeetingManager.addMeeting(meeting, mapManager);
                             }
 
                             View view = activity.getCurrentFocus();

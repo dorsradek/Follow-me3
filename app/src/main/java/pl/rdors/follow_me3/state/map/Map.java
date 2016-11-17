@@ -8,18 +8,13 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.Set;
 
 import pl.rdors.follow_me3.LocationProvider;
 import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.google.MapManager;
-import pl.rdors.follow_me3.rest.model.Meeting;
-import pl.rdors.follow_me3.rest.model.Place;
+import pl.rdors.follow_me3.google.MeetingMarker;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
@@ -102,20 +97,10 @@ public class Map extends MapState {
         if (isCorrectLocation(lastLocation)) {
             bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         }
-
-        Set<Meeting> meetings = MeetingManager.getMeetings();
-        java.util.Map<Meeting, Marker> meetingsMarkers = MeetingManager.getMeetingsMarkers();
-        for (Meeting meeting : meetings) {
-            Place place = meeting.getPlace();
-            LatLng latLng = new LatLng(place.getX(), place.getY());
+        for (MeetingMarker meetingMarker : MeetingManager.getMeetings()) {
+            MeetingManager.addMeeting(meetingMarker.getMeeting(), mapManager);
+            LatLng latLng = new LatLng(meetingMarker.getMeeting().getPlace().getX(), meetingMarker.getMeeting().getPlace().getY());
             bld.include(latLng);
-            if (!meetingsMarkers.containsKey(meeting)) {
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(latLng)
-                        .title(meeting.getName());
-                Marker marker = mapManager.getGoogleMap().addMarker(markerOptions);
-                meetingsMarkers.put(meeting, marker);
-            }
         }
         try {
             LatLngBounds bounds = bld.build();
