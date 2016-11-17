@@ -23,6 +23,7 @@ public class LocationProvider {
 
     public static final int ONE_MINUTE = 1000 * 60;
     public static final int FIVE_MINUTES = ONE_MINUTE * 5;
+    public static final int asd_MINUTES = 1000 * 10;
 
     private static Location currentLocation;
     private GoogleApiClient googleApiClient;

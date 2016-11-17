@@ -11,9 +11,14 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.HashMap;
 
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.rest.model.User;
 import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
@@ -42,8 +47,7 @@ public class MapManager implements OnMapReadyCallback {
     public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        boolean success = googleMap.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(activity, R.raw.map_style));
+        boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(activity, R.raw.map_style));
         if (success) {
             Log.d(TAG, "Map style success!");
         }
@@ -84,11 +88,6 @@ public class MapManager implements OnMapReadyCallback {
     public GoogleMap getGoogleMap() {
         return googleMap;
     }
-//
-//    private boolean isCorrectLocation(Location location) {
-//        return location != null &&
-//                (location.getLongitude() != 0 || location.getLatitude() != 0);
-//    }
 
     private Location createLocation(CameraPosition cameraPosition) {
         LatLng latLng = cameraPosition.target;

@@ -194,7 +194,7 @@ public class TestActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(),
-                LocationProvider.FIVE_MINUTES, pendingIntent);
+                LocationProvider.asd_MINUTES, pendingIntent);
     }
 
     private void loadMeetings() {
@@ -203,7 +203,11 @@ public class TestActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
                 MeetingManager.getMeetings().clear();
-                MeetingManager.getMeetings().addAll(response.body());
+                for (Meeting meeting : response.body()) {
+                    if (meeting.getPlace() != null) {
+                        MeetingManager.getMeetings().add(meeting);
+                    }
+                }
                 loadMapFragment();
             }
 

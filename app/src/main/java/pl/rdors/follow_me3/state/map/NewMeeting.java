@@ -157,7 +157,11 @@ public class NewMeeting extends MapState {
                         @Override
                         public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
                             MeetingManager.getMeetings().clear();
-                            MeetingManager.getMeetings().addAll(response.body());
+                            for (Meeting meeting : response.body()) {
+                                if (meeting.getPlace() != null) {
+                                    MeetingManager.getMeetings().add(meeting);
+                                }
+                            }
 
                             View view = activity.getCurrentFocus();
                             if (view != null) {
@@ -165,14 +169,14 @@ public class NewMeeting extends MapState {
                                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                             }
 
+                            activity.setApplicationState(new Map(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
+                            activity.getApplicationState().init();
+                            progressDialog.dismiss();
+
                             for (User user : users) {
                                 user.setSelected(false);
                             }
                             viewElements.textNewMeetingName.setText("");
-
-                            activity.setApplicationState(new Map(activity, ((MapFragment) activity.getFragment()).getMapManager(), viewElements));
-                            activity.getApplicationState().init();
-                            progressDialog.dismiss();
                         }
 
                         @Override

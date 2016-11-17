@@ -3,13 +3,24 @@ package pl.rdors.follow_me3;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.PowerManager;
+import android.util.Log;
+
+import okhttp3.ResponseBody;
+import pl.rdors.follow_me3.rest.ServiceGenerator;
+import pl.rdors.follow_me3.rest.service.LocationService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by rdors on 2016-11-16.
  */
 public class LocationTracker extends BroadcastReceiver {
+
+    private static final String TAG = "LocationTracker";
 
     private PowerManager.WakeLock wakeLock;
 
@@ -20,23 +31,25 @@ public class LocationTracker extends BroadcastReceiver {
         wakeLock.acquire();
 
         Location currentLocation = LocationProvider.getInstance().getCurrentLocation();
+        SharedPreferences prefs = context.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
+        final String token = prefs.getString("token", "");
+        if (currentLocation != null) {
+            LocationService locationService = ServiceGenerator.createService(LocationService.class);
+            Call<ResponseBody> call = locationService.updateLocation(currentLocation.getLatitude(), currentLocation.getLongitude(), token);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    wakeLock.release();
+                }
 
-        // Send new location to backend. // this will be different for you
-//        UserService.registerLocation(context, new Handlers.OnRegisterLocationRequestCompleteHandler() {
-//            @Override
-//            public void onSuccess() {
-//                Log.d("success", "UserService.RegisterLocation() succeeded");
-//
-//                wakeLock.release();
-//            }
-//
-//            @Override
-//            public void onFailure(int statusCode, String errorMessage) {
-//                Log.d("error", "UserService.RegisterLocation() failed");
-//                Log.d("error", errorMessage);
-//
-//                wakeLock.release();
-//            }
-//        }, currentLocation);
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Log.d(TAG, t.getMessage());
+                    wakeLock.release();
+                }
+            });
+        }
+
+
     }
 }

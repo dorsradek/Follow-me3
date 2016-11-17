@@ -1,6 +1,10 @@
 package pl.rdors.follow_me3;
 
+import com.google.android.gms.maps.model.Marker;
+
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import pl.rdors.follow_me3.rest.model.Meeting;
@@ -14,7 +18,9 @@ public class MeetingManager {
 
     private static Set<Meeting> meetings;
 
-    private static Set<User> facebookFriends;
+    private static Map<User, Marker> friends;
+
+    private static Map<Meeting, Marker> meetingsMarkers;
 
     public static Set<Meeting> getMeetings() {
         if (meetings == null) {
@@ -23,11 +29,18 @@ public class MeetingManager {
         return meetings;
     }
 
-    public static Set<User> getFacebookFriends() {
-        if (facebookFriends == null) {
-            facebookFriends = new HashSet<>();
+    public static Map<User, Marker> getFriends() {
+        if (friends == null) {
+            friends = new HashMap<>();
         }
-        return facebookFriends;
+        return friends;
+    }
+
+    public static Map<Meeting, Marker> getMeetingsMarkers() {
+        if (meetingsMarkers == null) {
+            meetingsMarkers = new HashMap<>();
+        }
+        return meetingsMarkers;
     }
 
 }

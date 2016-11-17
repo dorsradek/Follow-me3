@@ -12,7 +12,11 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
+import java.util.Set;
 
 import pl.rdors.follow_me3.LocationProvider;
 import pl.rdors.follow_me3.MeetingManager;
@@ -21,6 +25,7 @@ import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.model.Place;
+import pl.rdors.follow_me3.rest.model.User;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
@@ -40,26 +45,6 @@ public class Map extends MapState {
 
     @Override
     public void init() {
-//        SharedPreferences prefs = activity.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
-//        String token = prefs.getString("token", "");
-//        Call<List<Meeting>> call = activity.getMeetingService().findAll(token);
-//        call.enqueue(new Callback<List<Meeting>>() {
-//            @Override
-//            public void onResponse(Call<List<Meeting>> call, Response<List<Meeting>> response) {
-//                if (response.isSuccessful()) {
-//                    System.out.println(response.body());
-//                    mapManager.focusOnMeetings(response.body());
-//                } else {
-//                    // error response, no access to resource?
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<List<Meeting>> call, Throwable t) {
-//                // something went completely south (like no internet connection)
-//                //Log.d("Error", t.getMessage());
-//            }
-//        });
 
         viewElements.buttonNewMeeting.setTranslationY(AppUtils.getHeightPx(activity));
         viewElements.buttonNewMeeting.setVisibility(View.INVISIBLE);
@@ -118,25 +103,24 @@ public class Map extends MapState {
     }
 
     public void focusOnMeetings() {
-        mapManager.getGoogleMap().clear();
         LatLngBounds.Builder bld = new LatLngBounds.Builder();
         Location lastLocation = LocationProvider.getInstance().getCurrentLocation();
         if (isCorrectLocation(lastLocation)) {
             bld.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         }
-        for (Meeting meeting : MeetingManager.getMeetings()) {
+
+        Set<Meeting> meetings = MeetingManager.getMeetings();
+        java.util.Map<Meeting, Marker> meetingsMarkers = MeetingManager.getMeetingsMarkers();
+        for (Meeting meeting : meetings) {
             Place place = meeting.getPlace();
-            if (place != null) {
-                Location location = new Location("");
-                location.setLatitude(place.getX());
-                location.setLongitude(place.getY());
-
-                bld.include(new LatLng(location.getLatitude(), location.getLongitude()));
-
-                MarkerOptions marker = new MarkerOptions()
-                        .position(new LatLng(location.getLatitude(), location.getLongitude()))
+            LatLng latLng = new LatLng(place.getX(), place.getY());
+            bld.include(latLng);
+            if (!meetingsMarkers.containsKey(meeting)) {
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(latLng)
                         .title(meeting.getName());
-                mapManager.getGoogleMap().addMarker(marker);
+                Marker marker = mapManager.getGoogleMap().addMarker(markerOptions);
+                meetingsMarkers.put(meeting, marker);
             }
         }
         try {
