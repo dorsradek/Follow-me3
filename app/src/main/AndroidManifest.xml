@@ -50,7 +50,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA1REipsIwyXrmR6BzG4KXGAm2Cadi5kb8" />
+            android:value="@string/geo_api_key" />
 
         <service
             android:name=".intentservice.FetchAddressIntentService"
