@@ -1,13 +1,9 @@
 package pl.rdors.follow_me3.state.map;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -15,7 +11,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
 import java.util.Set;
 
 import pl.rdors.follow_me3.LocationProvider;
@@ -25,7 +20,6 @@ import pl.rdors.follow_me3.fragment.MapFragment;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.model.Place;
-import pl.rdors.follow_me3.rest.model.User;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
 
