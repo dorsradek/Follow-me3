@@ -246,7 +246,7 @@ public class TestActivity extends AppCompatActivity {
                 fragment = MapFragment.newInstance();
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment_container, fragment);
-                ft.commit();
+                ft.commitAllowingStateLoss();
             }
         });
     }
