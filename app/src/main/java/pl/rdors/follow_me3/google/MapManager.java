@@ -167,7 +167,10 @@ public class MapManager implements OnMapReadyCallback {
         LatLngBounds.Builder bld = new LatLngBounds.Builder();
 
         for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
-            if (meetingUserPolyline.getMeetingMarker().getMarker().equals(marker)) {
+            if (meetingUserPolyline.getMeetingMarker().getMarker().equals(marker) &&
+                    meetingUserPolyline.getUserMarker() != null &&
+                    meetingUserPolyline.getUserMarker().getMarker() != null &&
+                    meetingUserPolyline.getUserMarker().getMarker().isVisible()) {
                 LatLng userLatLng = new LatLng(
                         meetingUserPolyline.getUserMarker().getUser().getX(),
                         meetingUserPolyline.getUserMarker().getUser().getY());
@@ -182,7 +185,7 @@ public class MapManager implements OnMapReadyCallback {
         LatLngBounds bounds = bld.build();
 
         //TODO: padding deppends on location marker size
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 200);
         googleMap.animateCamera(cameraUpdate);
     }
 
