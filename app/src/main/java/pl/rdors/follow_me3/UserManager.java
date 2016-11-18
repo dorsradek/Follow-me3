@@ -102,11 +102,14 @@ public class UserManager {
             getUsers().add(userMarker);
         }
 
+        double x = userMarker.getUser().getX();
+        double y = userMarker.getUser().getY();
+
         for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
             if (meetingUserPolyline.getUserMarker().getUser().equals(user)) {
                 meetingUserPolyline.setUserMarker(userMarker);
 
-                if (locationChanged(user, userMarker)) {
+                if (locationChanged(user, x, y)) {
                     userMarker.getUser().setLastUpdate(user.getLastUpdate());
                     userMarker.getUser().setX(user.getX());
                     userMarker.getUser().setY(user.getY());
@@ -119,9 +122,8 @@ public class UserManager {
         }
     }
 
-    private static boolean locationChanged(User newUser, UserMarker oldUserMarker) {
-        return oldUserMarker.getUser().getX() != newUser.getX() ||
-                oldUserMarker.getUser().getY() != newUser.getY();
+    private static boolean locationChanged(User newUser, double x, double y) {
+        return x != newUser.getX() || y != newUser.getY();
     }
 
     private static boolean usersContains(User user) {
