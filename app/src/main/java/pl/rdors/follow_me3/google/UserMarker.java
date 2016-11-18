@@ -27,4 +27,28 @@ public class UserMarker {
     public void setMarker(Marker marker) {
         this.marker = marker;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserMarker that = (UserMarker) o;
+
+        return user != null ? user.equals(that.user) : that.user == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return user != null ? user.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "UserMarker{" +
+                "user=" + user +
+                ", marker=" + marker +
+                '}';
+    }
 }
