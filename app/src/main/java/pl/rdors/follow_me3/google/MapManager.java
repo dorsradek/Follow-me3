@@ -185,7 +185,7 @@ public class MapManager implements OnMapReadyCallback {
         LatLngBounds bounds = bld.build();
 
         //TODO: padding deppends on location marker size
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 200);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 250);
         googleMap.animateCamera(cameraUpdate);
     }
 
