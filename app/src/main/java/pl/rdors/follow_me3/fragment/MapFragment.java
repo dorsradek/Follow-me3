@@ -103,7 +103,7 @@ public class MapFragment extends Fragment implements IOnActivityResult {
 
         mapFragment.getMapAsync(mapManager);
 
-        callAsynchronousTask();
+        asynchronouslyUpdateFriends();
 
         return view;
     }
@@ -126,6 +126,7 @@ public class MapFragment extends Fragment implements IOnActivityResult {
         super.onDestroy();
         if (timer != null) {
             timer.cancel();
+            timer.purge();
         }
         Log.d(TAG, "onDestroy");
     }
@@ -149,10 +150,9 @@ public class MapFragment extends Fragment implements IOnActivityResult {
         }
     }
 
-    public void callAsynchronousTask() {
+    public void asynchronouslyUpdateFriends() {
         final Handler handler = new Handler();
-        timer = new Timer();
-        TimerTask doAsynchronousTask = new TimerTask() {
+        TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
                 handler.post(new Runnable() {
@@ -165,9 +165,8 @@ public class MapFragment extends Fragment implements IOnActivityResult {
                         call.enqueue(new Callback<List<User>>() {
                             @Override
                             public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                                final List<User> users = response.body();
+                                List<User> users = response.body();
                                 UserManager.addOrUpdateUsers(users, mapManager);
-                                Log.d(TAG, "Friends: " + UserManager.getUsers());
                             }
 
                             @Override
@@ -179,7 +178,8 @@ public class MapFragment extends Fragment implements IOnActivityResult {
                 });
             }
         };
-        timer.schedule(doAsynchronousTask, 0, 60 * 1000);
+        timer = new Timer();
+        timer.schedule(timerTask, 0, 60 * 1000);
     }
 
     public MapManager getMapManager() {
