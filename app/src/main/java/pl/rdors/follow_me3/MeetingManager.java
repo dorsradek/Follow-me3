@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import pl.rdors.follow_me3.google.MapManager;
@@ -42,22 +43,14 @@ public class MeetingManager {
 
     private static final String TAG = "MeetingManager";
 
-    private static List<MeetingMarker> meetings;
-    private static List<UserMarker> users;
-    private static List<MeetingUserPolyline> meetingUserPolylines;
+    public static List<MeetingMarker> meetings;
+    public static List<MeetingUserPolyline> meetingUserPolylines;
 
     public static List<MeetingMarker> getMeetings() {
         if (meetings == null) {
             meetings = new ArrayList<>();
         }
         return meetings;
-    }
-
-    public static List<UserMarker> getUsers() {
-        if (users == null) {
-            users = new ArrayList<>();
-        }
-        return users;
     }
 
     public static List<MeetingUserPolyline> getMeetingUserPolylines() {
@@ -102,44 +95,6 @@ public class MeetingManager {
         }
     }
 
-    public static void addUser(User user, MapManager mapManager) {
-        if (usersContains(user)) {
-            UserMarker userMarker = usersGet(user);
-            Marker marker = userMarker.getMarker();
-            userMarker.getUser().setLastUpdate(user.getLastUpdate());
-            if (userMarker.getUser().getX() != user.getX() || userMarker.getUser().getY() != user.getY()) {
-                userMarker.getUser().setX(user.getX());
-                userMarker.getUser().setY(user.getY());
-                animateMarker(marker, new LatLng(user.getX(), user.getY()), false, mapManager);
-            }
-        } else {
-            MarkerOptions markerOptions = new MarkerOptions()
-                    .position(new LatLng(user.getX(), user.getY()))
-                    .title(user.getUsername()).visible(false);
-            Marker marker = mapManager.getGoogleMap().addMarker(markerOptions);
-            UserMarker userMarker = new UserMarker();
-            userMarker.setUser(user);
-            userMarker.setMarker(marker);
-            getUsers().add(userMarker);
-
-            for (MeetingUserPolyline meetingUserPolyline : getMeetingUserPolylines()) {
-                if (meetingUserPolyline.getUserMarker().getUser().equals(user)) {
-                    meetingUserPolyline.setUserMarker(userMarker);
-                }
-            }
-        }
-
-        for (MeetingUserPolyline meetingUserPolyline : getMeetingUserPolylines()) {
-            if (meetingUserPolyline.getUserMarker().getUser().equals(user)) {
-                Marker meetingMarker = meetingUserPolyline.getMeetingMarker().getMarker();
-                Marker userMarker = meetingUserPolyline.getUserMarker().getMarker();
-                if (meetingMarker != null && userMarker != null) {
-                    createDirection(mapManager, meetingUserPolyline);
-                }
-            }
-        }
-    }
-
     private static boolean meetingsContains(Meeting meeting) {
         for (MeetingMarker meetingMarker : getMeetings()) {
             if (meetingMarker.getMeeting().equals(meeting)) {
@@ -157,99 +112,6 @@ public class MeetingManager {
             }
         }
         return null;
-    }
-
-    private static boolean usersContains(User user) {
-        for (UserMarker userMarker : getUsers()) {
-            if (userMarker.getUser().equals(user)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Nullable
-    private static UserMarker usersGet(User user) {
-        for (UserMarker userMarker : getUsers()) {
-            if (userMarker.getUser().equals(user)) {
-                return userMarker;
-            }
-        }
-        return null;
-    }
-
-    private static void createDirection(final MapManager mapManager, final MeetingUserPolyline meetingUserPolyline) {
-        final Meeting meeting = meetingUserPolyline.getMeetingMarker().getMeeting();
-        final User user = meetingUserPolyline.getUserMarker().getUser();
-        GoogleDirection.withServerKey(mapManager.getActivity().getString(R.string.geo_api_key))
-                .from(new LatLng(user.getX(), user.getY()))
-                .to(new LatLng(meeting.getPlace().getX(), meeting.getPlace().getY()))
-                .transportMode(TransportMode.WALKING)
-                .execute(new DirectionCallback() {
-                    @Override
-                    public void onDirectionSuccess(Direction direction, String rawBody) {
-                        if (direction.isOK()) {
-                            Route route = direction.getRouteList().get(0);
-                            Leg leg = route.getLegList().get(0);
-                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            PolylineOptions polylineOptions = DirectionConverter
-                                    .createPolyline(mapManager.getActivity(), directionPositionList, 5, Color.parseColor(user.getColor().toLowerCase())).visible(false);
-                            Polyline polyline = mapManager.getGoogleMap().addPolyline(polylineOptions);
-                            if (meetingUserPolyline.getPolyline() != null) {
-                                if (meetingUserPolyline.getPolyline().isVisible()) {
-                                    polyline.setVisible(true);
-                                }
-                                meetingUserPolyline.getPolyline().remove();
-                            }
-                            meetingUserPolyline.setPolyline(polyline);
-                        } else {
-                            Log.d(TAG, direction.getErrorMessage());
-                        }
-                    }
-
-                    @Override
-                    public void onDirectionFailure(Throwable t) {
-                        Log.d(TAG, t.getMessage());
-                    }
-                });
-    }
-
-    private static void animateMarker(final Marker marker, final LatLng toPosition,
-                                      final boolean hideMarker, MapManager mapManager) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = mapManager.getGoogleMap().getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-        final long duration = 500;
-
-        final Interpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startLatLng.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                }
-//                else {
-//                    if (hideMarker) {
-//                        marker.setVisible(false);
-//                    } else {
-//                        marker.setVisible(true);
-//                    }
-//                }
-            }
-        });
     }
 
 }
