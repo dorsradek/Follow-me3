@@ -115,7 +115,7 @@ public class MeetingManager {
         } else {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(new LatLng(user.getX(), user.getY()))
-                    .title(user.getUsername());
+                    .title(user.getUsername()).visible(false);
             Marker marker = mapManager.getGoogleMap().addMarker(markerOptions);
             UserMarker userMarker = new UserMarker();
             userMarker.setUser(user);
@@ -179,8 +179,8 @@ public class MeetingManager {
     }
 
     private static void createDirection(final MapManager mapManager, final MeetingUserPolyline meetingUserPolyline) {
-        Meeting meeting = meetingUserPolyline.getMeetingMarker().getMeeting();
-        User user = meetingUserPolyline.getUserMarker().getUser();
+        final Meeting meeting = meetingUserPolyline.getMeetingMarker().getMeeting();
+        final User user = meetingUserPolyline.getUserMarker().getUser();
         GoogleDirection.withServerKey(mapManager.getActivity().getString(R.string.geo_api_key))
                 .from(new LatLng(user.getX(), user.getY()))
                 .to(new LatLng(meeting.getPlace().getX(), meeting.getPlace().getY()))
@@ -193,7 +193,7 @@ public class MeetingManager {
                             Leg leg = route.getLegList().get(0);
                             ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
                             PolylineOptions polylineOptions = DirectionConverter
-                                    .createPolyline(mapManager.getActivity(), directionPositionList, 5, Color.RED).visible(false);
+                                    .createPolyline(mapManager.getActivity(), directionPositionList, 5, Color.parseColor(user.getColor().toLowerCase())).visible(false);
                             Polyline polyline = mapManager.getGoogleMap().addPolyline(polylineOptions);
                             if (meetingUserPolyline.getPolyline() != null) {
                                 if (meetingUserPolyline.getPolyline().isVisible()) {
@@ -240,13 +240,14 @@ public class MeetingManager {
                 if (t < 1.0) {
                     // Post again 16ms later.
                     handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
                 }
+//                else {
+//                    if (hideMarker) {
+//                        marker.setVisible(false);
+//                    } else {
+//                        marker.setVisible(true);
+//                    }
+//                }
             }
         });
     }
