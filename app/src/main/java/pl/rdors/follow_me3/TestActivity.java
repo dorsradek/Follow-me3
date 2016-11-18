@@ -152,6 +152,26 @@ public class TestActivity extends AppCompatActivity {
         });
     }
 
+    private void logout() {
+        alarmManager.cancel(pendingIntent);
+
+        if (fragment != null &&
+                fragment instanceof MapFragment &&
+                ((MapFragment) fragment).getMapManager() != null &&
+                ((MapFragment) fragment).getMapManager().getGoogleMap() != null) {
+            ((MapFragment) fragment).getMapManager().getGoogleMap().clear();
+        }
+
+        MeetingManager.getMeetingUserPolylines().clear();
+        UserManager.getUsers().clear();
+        MeetingManager.getMeetings().clear();
+
+        prefs.edit().remove("token").apply();
+        prefs.edit().remove("username").apply();
+
+        goToLogin();
+    }
+
     private void goToLogin() {
         Intent intent = new Intent(TestActivity.this, LoginActivity.class);
         startActivityForResult(intent, LOGIN_RESULT);
@@ -188,11 +208,15 @@ public class TestActivity extends AppCompatActivity {
                 }).build();
     }
 
+    PendingIntent pendingIntent;
+    AlarmManager alarmManager;
+    Intent intent;
+
     private void startLocationTracker() {
         // Configure the LocationTracker's broadcast receiver to run every 5 minutes.
-        Intent intent = new Intent(this, LocationTracker.class);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        intent = new Intent(this, LocationTracker.class);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, Calendar.getInstance().getTimeInMillis(),
                 LocationProvider.asd_MINUTES, pendingIntent);
     }
@@ -294,12 +318,13 @@ public class TestActivity extends AppCompatActivity {
                 title = "Events";
                 break;
             case R.id.action_logout:
-                goToLogin();
+                logout();
                 fragment = null;
                 break;
         }
 
         if (fragment != null) {
+            fragment = MapFragment.newInstance();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.fragment_container, fragment);
             ft.commit();
@@ -312,6 +337,7 @@ public class TestActivity extends AppCompatActivity {
         result.closeDrawer();
 
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
