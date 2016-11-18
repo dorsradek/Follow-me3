@@ -11,6 +11,7 @@ public class User {
     private double x;
     private double y;
     private String lastUpdate;
+    private String color;
 
     public User() {
     }
@@ -65,6 +66,14 @@ public class User {
 
     public void setLastUpdate(String lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     @Override
