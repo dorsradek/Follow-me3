@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.UserManager;
 import pl.rdors.follow_me3.google.MapManager;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
 import pl.rdors.follow_me3.rest.model.User;
@@ -103,6 +103,8 @@ public class MapFragment extends Fragment implements IOnActivityResult {
 
         mapFragment.getMapAsync(mapManager);
 
+        callAsynchronousTask();
+
         return view;
     }
 
@@ -110,17 +112,22 @@ public class MapFragment extends Fragment implements IOnActivityResult {
     @Override
     public void onStart() {
         super.onStart();
-        callAsynchronousTask();
         Log.d(TAG, "onStart");
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         if (timer != null) {
             timer.cancel();
         }
-        Log.d(TAG, "onStop");
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
@@ -158,11 +165,9 @@ public class MapFragment extends Fragment implements IOnActivityResult {
                         call.enqueue(new Callback<List<User>>() {
                             @Override
                             public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                                List<User> users = response.body();
-                                for (User user : users) {
-                                    MeetingManager.addUser(user, mapManager);
-                                }
-                                Log.d(TAG, "Friends: " + MeetingManager.getUsers());
+                                final List<User> users = response.body();
+                                UserManager.addOrUpdateUsers(users, mapManager);
+                                Log.d(TAG, "Friends: " + UserManager.getUsers());
                             }
 
                             @Override
