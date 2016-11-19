@@ -111,10 +111,7 @@ public class Map extends MapState {
         } catch (Exception e) {
             Log.d(TAG, e.getMessage());
         }
-
-        if (activity.getFragment() instanceof pl.rdors.follow_me3.fragment.MapFragment) {
-            ((MapFragment) activity.getFragment()).progressDialog.dismiss();
-        }
+        activity.progressDialog.dismiss();
     }
 
     private boolean isCorrectLocation(Location location) {

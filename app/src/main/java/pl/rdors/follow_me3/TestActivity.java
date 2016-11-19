@@ -3,9 +3,11 @@ package pl.rdors.follow_me3;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -17,15 +19,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.List;
@@ -64,23 +60,32 @@ public class TestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
 
-        prefs = this.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
-        username = prefs.getString("username", "");
-        token = prefs.getString("token", "");
-        accessToken = AccessToken.getCurrentAccessToken();
+            @Override
+            protected Void doInBackground(Void... voids) {
+                prefs = TestActivity.this.getSharedPreferences("follow-me", Context.MODE_PRIVATE);
 
-        if (accessToken != null
-                && accessToken.getToken() != null
-                && !accessToken.getToken().isEmpty()) {
-            AccessToken.refreshCurrentAccessTokenAsync();
-        }
+                username = prefs.getString("username", "");
+                token = prefs.getString("token", "");
+                accessToken = AccessToken.getCurrentAccessToken();
 
-        if (username == null || username.isEmpty()) {
-            goToLogin();
-        } else {
-            handleExistenceOfUsername();
-        }
+                if (accessToken != null
+                        && accessToken.getToken() != null
+                        && !accessToken.getToken().isEmpty()) {
+                    AccessToken.refreshCurrentAccessTokenAsync();
+                }
+
+                if (username == null || username.isEmpty()) {
+                    goToLogin();
+                } else {
+                    handleExistenceOfUsername();
+                }
+                return null;
+            }
+        };
+        asyncTask.execute();
+
     }
 
     private void handleExistenceOfUsername() {
@@ -153,8 +158,17 @@ public class TestActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        clearMapData();
+
         alarmManager.cancel(pendingIntent);
 
+        prefs.edit().remove("token").apply();
+        prefs.edit().remove("username").apply();
+
+        goToLogin();
+    }
+
+    private void clearMapData() {
         if (fragment != null &&
                 fragment instanceof MapFragment &&
                 ((MapFragment) fragment).getMapManager() != null &&
@@ -165,11 +179,6 @@ public class TestActivity extends AppCompatActivity {
         MeetingManager.getMeetingUserPolylines().clear();
         UserManager.getUsers().clear();
         MeetingManager.getMeetings().clear();
-
-        prefs.edit().remove("token").apply();
-        prefs.edit().remove("username").apply();
-
-        goToLogin();
     }
 
     private void goToLogin() {
@@ -221,7 +230,16 @@ public class TestActivity extends AppCompatActivity {
                 LocationProvider.asd_MINUTES, pendingIntent);
     }
 
+    public ProgressDialog progressDialog;
+
     private void loadMeetings() {
+        progressDialog = new ProgressDialog(this, R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+
         MeetingService meetingService = ServiceGenerator.createService(MeetingService.class);
         meetingService.findAll(token).enqueue(new Callback<List<Meeting>>() {
             @Override
@@ -265,7 +283,6 @@ public class TestActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //displayView(item.getItemId());
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Seetings");
         }
@@ -306,7 +323,8 @@ public class TestActivity extends AppCompatActivity {
 
         switch ((int) drawerItem.getIdentifier()) {
             case R.id.meetings:
-                fragment = MapFragment.newInstance();
+                clearMapData();
+                loadMeetings();
                 title = "Meetings";
                 break;
             case R.id.menu_3:
@@ -323,7 +341,7 @@ public class TestActivity extends AppCompatActivity {
                 break;
         }
 
-        if (fragment != null) {
+        if (fragment != null && !(fragment instanceof MapFragment)) {
             fragment = MapFragment.newInstance();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.fragment_container, fragment);
@@ -363,34 +381,4 @@ public class TestActivity extends AppCompatActivity {
         return fragment;
     }
 
-
-    private void asd(AccessToken token) {
-        Bundle args = new Bundle();
-        args.putInt("limit", 150);
-        GraphRequest request = new GraphRequest(token, "/me/friends", args, HttpMethod.GET, new GraphRequest.Callback() {
-            @Override
-            public void onCompleted(GraphResponse graphResponse) {
-                try {
-                    JSONObject graphObject = graphResponse.getJSONObject();
-                    JSONArray dataArray = graphObject.getJSONArray("data");
-                    for (int i = 0; i < dataArray.length(); i++) {
-                        try {
-                            JSONObject object = dataArray.getJSONObject(i);
-                            String str_id = object.getString("id");
-                            String str_name = object.getString("name");
-                            JSONObject picture_obj = object.getJSONObject("picture");
-                            JSONObject data_obj = picture_obj.getJSONObject("data");
-                            String str_url = data_obj.getString("url");
-                            System.out.println(str_id + " " + str_name + " " + str_url);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (Exception e) {
-                    Log.d(TAG, e.getMessage());
-                }
-            }
-        });
-        request.executeAsync();
-    }
 }

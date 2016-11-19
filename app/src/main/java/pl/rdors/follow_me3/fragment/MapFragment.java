@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
 import pl.rdors.follow_me3.UserManager;
@@ -52,8 +54,6 @@ public class MapFragment extends Fragment implements IOnActivityResult {
     private ViewElementsManager viewElementsManager;
     private MapManager mapManager;
 
-    public ProgressDialog progressDialog;
-
     private static MapFragment fragment;
 
     Timer timer;
@@ -77,12 +77,6 @@ public class MapFragment extends Fragment implements IOnActivityResult {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
-
-        progressDialog = new ProgressDialog(this.getContext(), R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Loading...");
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.show();
     }
 
     @Nullable
@@ -90,20 +84,36 @@ public class MapFragment extends Fragment implements IOnActivityResult {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView");
 
-        View view = inflater.inflate(R.layout.fragment_map, null, false);
+        final View view = inflater.inflate(R.layout.fragment_map, null, false);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
+        final SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.map);
 
-        ViewElements viewElements = new ViewElements(view);
-        viewElementsManager = new ViewElementsManager(activity, viewElements);
-        mapManager = new MapManager(activity, viewElements);
+        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
 
-        activity.setApplicationState(new LaunchingMap(activity, mapManager, viewElements));
-        activity.getApplicationState().init();
+            @Override
+            protected Void doInBackground(Void... voids) {
+                ViewElements viewElements = new ViewElements(view);
+                viewElementsManager = new ViewElementsManager(activity, viewElements);
+                mapManager = new MapManager(activity, viewElements);
 
-        mapFragment.getMapAsync(mapManager);
+                activity.setApplicationState(new LaunchingMap(activity, mapManager, viewElements));
 
-        asynchronouslyUpdateFriends();
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.getApplicationState().init();
+                        mapFragment.getMapAsync(mapManager);
+                        asynchronouslyUpdateFriends();
+                    }
+                });
+
+
+                return null;
+            }
+        };
+        asyncTask.execute();
+
+
 
         return view;
     }
@@ -179,7 +189,7 @@ public class MapFragment extends Fragment implements IOnActivityResult {
             }
         };
         timer = new Timer();
-        timer.schedule(timerTask, 0, 60 * 1000);
+        timer.schedule(timerTask, 0, 20 * 1000);
     }
 
     public MapManager getMapManager() {
