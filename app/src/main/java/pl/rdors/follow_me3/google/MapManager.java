@@ -5,6 +5,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,6 +21,7 @@ import com.google.android.gms.maps.model.Marker;
 import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
+import pl.rdors.follow_me3.UserManager;
 import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
@@ -86,6 +89,9 @@ public class MapManager implements OnMapReadyCallback {
                 boolean isMeetingMarker = isMeetingMarker(marker);
 
                 boolean hasUser = false;
+
+                MeetingUserPolyline user = null;
+
                 if (isMeetingMarker) {
                     for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
                         if (meetingUserPolyline.getPolyline() != null) {
@@ -109,6 +115,14 @@ public class MapManager implements OnMapReadyCallback {
                             }
                         }
                     }
+                } else {
+                    for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
+                        if (meetingUserPolyline.getUserMarker().getMarker() != null &&
+                                meetingUserPolyline.getUserMarker().getMarker().equals(marker) &&
+                                meetingUserPolyline.getPolyline().isVisible()) {
+                            user = meetingUserPolyline;
+                        }
+                    }
                 }
 
                 if (isMeetingMarker && hasUser) {
@@ -117,7 +131,12 @@ public class MapManager implements OnMapReadyCallback {
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(marker.getPosition());
                     googleMap.animateCamera(cameraUpdate);
                 }
-                marker.showInfoWindow();
+
+                if (isUserMarker(marker) && user != null) {
+                    Toast.makeText(activity, user.getUserMarker().getUser().getUsername() + " " + user.getDuration(), Toast.LENGTH_SHORT).show();
+                } else {
+                    marker.showInfoWindow();
+                }
                 return true;
             }
         });
@@ -156,7 +175,8 @@ public class MapManager implements OnMapReadyCallback {
 
     private boolean isUserMarker(Marker marker) {
         for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
-            if (meetingUserPolyline.getUserMarker().getMarker().equals(marker)) {
+            if (meetingUserPolyline.getUserMarker().getMarker() != null &&
+                    meetingUserPolyline.getUserMarker().getMarker().equals(marker)) {
                 return true;
             }
         }
