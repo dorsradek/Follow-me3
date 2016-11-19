@@ -2,6 +2,9 @@ package pl.rdors.follow_me3.google;
 
 import com.google.android.gms.maps.model.Polyline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by rdors on 2016-11-17.
  */
@@ -10,7 +13,7 @@ public class MeetingUserPolyline {
 
     private MeetingMarker meetingMarker;
     private UserMarker userMarker;
-    private Polyline polyline;
+    private List<Polyline> polylines;
 
     private String duration;
 
@@ -30,12 +33,11 @@ public class MeetingUserPolyline {
         this.userMarker = userMarker;
     }
 
-    public Polyline getPolyline() {
-        return polyline;
-    }
-
-    public void setPolyline(Polyline polyline) {
-        this.polyline = polyline;
+    public List<Polyline> getPolylines() {
+        if (polylines == null) {
+            polylines = new ArrayList<>();
+        }
+        return polylines;
     }
 
     public String getDuration() {
@@ -45,4 +47,26 @@ public class MeetingUserPolyline {
     public void setDuration(String duration) {
         this.duration = duration;
     }
+
+    public void polylinesSetVisible(boolean visible) {
+        for (Polyline polyline : getPolylines()) {
+            polyline.setVisible(visible);
+        }
+    }
+
+    public boolean polylinesIsVisible() {
+        for (Polyline polyline : getPolylines()) {
+            if (polyline.isVisible()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void polylinesRemove() {
+        for (Polyline polyline : getPolylines()) {
+            polyline.remove();
+        }
+    }
+
 }

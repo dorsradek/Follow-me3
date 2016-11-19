@@ -66,9 +66,7 @@ public class UserManager {
         List<MeetingUserPolyline> meetingUserPolylinesToRemove = new ArrayList<>();
         for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
             if (usersToRemove.contains(meetingUserPolyline.getUserMarker())) {
-                if (meetingUserPolyline.getPolyline() != null) {
-                    meetingUserPolyline.getPolyline().remove();
-                }
+                meetingUserPolyline.polylinesRemove();
                 if (meetingUserPolyline.getUserMarker().getMarker() != null) {
                     meetingUserPolyline.getUserMarker().getMarker().remove();
                 }
@@ -116,7 +114,7 @@ public class UserManager {
                     userMarker.getUser().setY(user.getY());
                     animateMarker(userMarker.getMarker(), new LatLng(user.getX(), user.getY()), false, mapManager);
                     createDirection(mapManager, meetingUserPolyline);
-                } else if (meetingUserPolyline.getPolyline() == null) {
+                } else if (meetingUserPolyline.getPolylines().isEmpty()) {
                     createDirection(mapManager, meetingUserPolyline);
                 }
             }
@@ -152,37 +150,33 @@ public class UserManager {
         GoogleDirection.withServerKey(mapManager.getActivity().getString(R.string.geo_api_key))
                 .from(new LatLng(user.getX(), user.getY()))
                 .to(new LatLng(meeting.getPlace().getX(), meeting.getPlace().getY()))
-                .transportMode(TransportMode.WALKING)
+                .transportMode(TransportMode.DRIVING)
                 .execute(new DirectionCallback() {
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
                         if (direction.isOK()) {
 
-//                            List<Step> stepList = direction.getRouteList().get(0).getLegList().get(0).getStepList();
-//                            ArrayList<PolylineOptions> polylineOptionList = DirectionConverter.createTransitPolyline(
-//                                    mapManager.getActivity(),
-//                                    stepList,
-//                                    5,
-//                                    Color.parseColor(user.getColor()),
-//                                    3,
-//                                    Color.parseColor(user.getColor()));
-//                            for (PolylineOptions polylineOption : polylineOptionList) {
-//                                mapManager.getGoogleMap().addPolyline(polylineOption.visible(false));
-//                            }
-
-                            Route route = direction.getRouteList().get(0);
-                            Leg leg = route.getLegList().get(0);
-                            ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            PolylineOptions polylineOptions = DirectionConverter
-                                    .createPolyline(mapManager.getActivity(), directionPositionList, 5, Color.parseColor(user.getColor())).visible(false);
-                            Polyline polyline = mapManager.getGoogleMap().addPolyline(polylineOptions);
-                            if (meetingUserPolyline.getPolyline() != null) {
-                                if (meetingUserPolyline.getPolyline().isVisible()) {
+                            Leg leg = direction.getRouteList().get(0).getLegList().get(0);
+                            List<Step> stepList = leg.getStepList();
+                            ArrayList<PolylineOptions> polylineOptionList = DirectionConverter.createTransitPolyline(
+                                    mapManager.getActivity(),
+                                    stepList,
+                                    5,
+                                    Color.parseColor(user.getColor()),
+                                    3,
+                                    Color.parseColor(user.getColor()));
+                            List<Polyline> polylines = new ArrayList<>();
+                            for (PolylineOptions polylineOption : polylineOptionList) {
+                                polylines.add(mapManager.getGoogleMap().addPolyline(polylineOption.visible(false)));
+                            }
+                            if (meetingUserPolyline.polylinesIsVisible()) {
+                                for (Polyline polyline : polylines) {
                                     polyline.setVisible(true);
                                 }
-                                meetingUserPolyline.getPolyline().remove();
                             }
-                            meetingUserPolyline.setPolyline(polyline);
+                            meetingUserPolyline.polylinesRemove();
+                            meetingUserPolyline.getPolylines().clear();
+                            meetingUserPolyline.getPolylines().addAll(polylines);
                             meetingUserPolyline.setDuration(leg.getDuration().getText());
                         } else {
                             Log.d(TAG, direction.getErrorMessage());

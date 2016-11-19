@@ -5,7 +5,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -21,7 +20,6 @@ import com.google.android.gms.maps.model.Marker;
 import pl.rdors.follow_me3.MeetingManager;
 import pl.rdors.follow_me3.R;
 import pl.rdors.follow_me3.TestActivity;
-import pl.rdors.follow_me3.UserManager;
 import pl.rdors.follow_me3.state.map.Map;
 import pl.rdors.follow_me3.utils.AppUtils;
 import pl.rdors.follow_me3.view.ViewElements;
@@ -94,14 +92,8 @@ public class MapManager implements OnMapReadyCallback {
 
                 if (isMeetingMarker) {
                     for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
-                        if (meetingUserPolyline.getPolyline() != null) {
-                            if (meetingUserPolyline.getMeetingMarker().getMarker().equals(marker)) {
-                                meetingUserPolyline.getPolyline().setVisible(true);
-                            } else {
-                                meetingUserPolyline.getPolyline().setVisible(false);
-                            }
-                        }
                         if (meetingUserPolyline.getMeetingMarker().getMarker().equals(marker)) {
+                            meetingUserPolyline.polylinesSetVisible(true);
                             if (meetingUserPolyline.getMeetingMarker().getMarker() != null) {
                                 meetingUserPolyline.getMeetingMarker().getMarker().setVisible(true);
                             }
@@ -110,6 +102,7 @@ public class MapManager implements OnMapReadyCallback {
                                 hasUser = true;
                             }
                         } else {
+                            meetingUserPolyline.polylinesSetVisible(false);
                             if (meetingUserPolyline.getMeetingMarker().getMarker() != null) {
                                 meetingUserPolyline.getMeetingMarker().getMarker().setVisible(false);
                             }
@@ -119,7 +112,7 @@ public class MapManager implements OnMapReadyCallback {
                     for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
                         if (meetingUserPolyline.getUserMarker().getMarker() != null &&
                                 meetingUserPolyline.getUserMarker().getMarker().equals(marker) &&
-                                meetingUserPolyline.getPolyline().isVisible()) {
+                                meetingUserPolyline.polylinesIsVisible()) {
                             user = meetingUserPolyline;
                         }
                     }
@@ -145,9 +138,8 @@ public class MapManager implements OnMapReadyCallback {
             @Override
             public void onMapClick(LatLng latLng) {
                 for (MeetingUserPolyline meetingUserPolyline : MeetingManager.getMeetingUserPolylines()) {
-                    if (meetingUserPolyline.getPolyline() != null) {
-                        meetingUserPolyline.getPolyline().setVisible(false);
-                    }
+                    meetingUserPolyline.polylinesSetVisible(false);
+
                     if (meetingUserPolyline.getMeetingMarker().getMarker() != null) {
                         meetingUserPolyline.getMeetingMarker().getMarker().setVisible(true);
                     }
