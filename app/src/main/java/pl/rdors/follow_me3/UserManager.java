@@ -15,6 +15,7 @@ import com.akexorcist.googledirection.constant.TransportMode;
 import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
+import com.akexorcist.googledirection.model.Step;
 import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.LatLng;
@@ -156,10 +157,22 @@ public class UserManager {
                     @Override
                     public void onDirectionSuccess(Direction direction, String rawBody) {
                         if (direction.isOK()) {
+
+//                            List<Step> stepList = direction.getRouteList().get(0).getLegList().get(0).getStepList();
+//                            ArrayList<PolylineOptions> polylineOptionList = DirectionConverter.createTransitPolyline(
+//                                    mapManager.getActivity(),
+//                                    stepList,
+//                                    5,
+//                                    Color.parseColor(user.getColor()),
+//                                    3,
+//                                    Color.parseColor(user.getColor()));
+//                            for (PolylineOptions polylineOption : polylineOptionList) {
+//                                mapManager.getGoogleMap().addPolyline(polylineOption.visible(false));
+//                            }
+
                             Route route = direction.getRouteList().get(0);
                             Leg leg = route.getLegList().get(0);
                             ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                            Log.d(TAG, user.getUsername() + " " + user.getColor());
                             PolylineOptions polylineOptions = DirectionConverter
                                     .createPolyline(mapManager.getActivity(), directionPositionList, 5, Color.parseColor(user.getColor())).visible(false);
                             Polyline polyline = mapManager.getGoogleMap().addPolyline(polylineOptions);
@@ -170,6 +183,7 @@ public class UserManager {
                                 meetingUserPolyline.getPolyline().remove();
                             }
                             meetingUserPolyline.setPolyline(polyline);
+                            meetingUserPolyline.setDuration(leg.getDuration().getText());
                         } else {
                             Log.d(TAG, direction.getErrorMessage());
                         }

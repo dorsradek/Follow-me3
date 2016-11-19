@@ -12,6 +12,8 @@ public class MeetingUserPolyline {
     private UserMarker userMarker;
     private Polyline polyline;
 
+    private String duration;
+
     public MeetingMarker getMeetingMarker() {
         return meetingMarker;
     }
@@ -34,5 +36,13 @@ public class MeetingUserPolyline {
 
     public void setPolyline(Polyline polyline) {
         this.polyline = polyline;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 }
