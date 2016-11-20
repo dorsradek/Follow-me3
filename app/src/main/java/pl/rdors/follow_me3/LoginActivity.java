@@ -18,27 +18,18 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.Arrays;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import pl.rdors.follow_me3.rest.ServiceGenerator;
 import pl.rdors.follow_me3.rest.model.JwtAuthenticationRequest;
 import pl.rdors.follow_me3.rest.model.JwtAuthenticationResponse;
-import pl.rdors.follow_me3.rest.model.Meeting;
 import pl.rdors.follow_me3.rest.service.AuthService;
-import pl.rdors.follow_me3.rest.service.MeetingService;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -106,6 +97,8 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(FacebookException exception) {
+                        AccessToken.setCurrentAccessToken(null);
+                        LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email, user_friends"));
                         onLoginFailed();
                     }
                 });
@@ -168,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
             String token = jwtAuthenticationResponse.getToken();
             prefs.edit().putString("token", token).apply();
             prefs.edit().putString("username", jwtAuthenticationResponse.getUser().getUsername()).apply();
+            prefs.edit().commit();
             onLoginSuccess();
         } else {
             onLoginFailed();
@@ -243,11 +237,17 @@ public class LoginActivity extends AppCompatActivity {
                 authService.facebook(accessToken.getToken()).enqueue(new Callback<JwtAuthenticationResponse>() {
                     @Override
                     public void onResponse(Call<JwtAuthenticationResponse> call, Response<JwtAuthenticationResponse> response) {
-                        handleAuthenticationResponse(response);
+                        if (response.errorBody() != null) {
+                            AccessToken.setCurrentAccessToken(null);
+                            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email, user_friends"));
+                        } else {
+                            handleAuthenticationResponse(response);
+                        }
                     }
 
                     @Override
                     public void onFailure(Call<JwtAuthenticationResponse> call, Throwable t) {
+                        AccessToken.setCurrentAccessToken(null);
                         onLoginFailed();
                     }
                 });

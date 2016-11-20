@@ -164,6 +164,7 @@ public class TestActivity extends AppCompatActivity {
 
         prefs.edit().remove("token").apply();
         prefs.edit().remove("username").apply();
+        prefs.edit().commit();
 
         goToLogin();
     }
@@ -189,6 +190,7 @@ public class TestActivity extends AppCompatActivity {
     private void goToApplication() {
         prefs.edit().putString("token", token).apply();
         prefs.edit().putString("username", username).apply();
+        prefs.edit().commit();
 
         startLocationTracker();
         LocationProvider locationProvider = LocationProvider.getInstance();
